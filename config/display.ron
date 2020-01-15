@@ -1,0 +1,4 @@
+(
+	title: "cogis",
+	dimensions: Some((800, 600)),
+)
