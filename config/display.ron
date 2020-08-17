@@ -1,4 +1,9 @@
+/*!
+    @import /amethyst_window/src/config.rs#DisplayConfig
+    DisplayConfig
+*/
+
 (
-    title: "Pong!",
-    dimensions: Some((800, 800)),
+  dimensions: Some((500, 500)),
+  title: "Pong example",
 )

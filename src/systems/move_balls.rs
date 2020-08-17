@@ -1,11 +1,12 @@
+use crate::Ball;
 use amethyst::{
-    core::{timing::Time, transform::Transform, SystemDesc},
+    core::{timing::Time, transform::Transform},
     derive::SystemDesc,
-    ecs::prelude::{Join, Read, ReadStorage, System, SystemData, World, WriteStorage},
+    ecs::prelude::{Join, Read, ReadStorage, System, SystemData, WriteStorage},
 };
 
-use crate::pong::Ball;
-
+/// This system is responsible for moving all balls according to their speed
+/// and the time passed.
 #[derive(SystemDesc)]
 pub struct MoveBallsSystem;
 
@@ -17,6 +18,7 @@ impl<'s> System<'s> for MoveBallsSystem {
     );
 
     fn run(&mut self, (balls, mut locals, time): Self::SystemData) {
+        // Move every ball according to its speed, and the time passed.
         for (ball, local) in (&balls, &mut locals).join() {
             local.prepend_translation_x(ball.velocity[0] * time.delta_seconds());
             local.prepend_translation_y(ball.velocity[1] * time.delta_seconds());
