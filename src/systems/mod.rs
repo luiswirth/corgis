@@ -1,11 +1,5 @@
-mod bounce;
-mod move_balls;
-mod paddle;
-mod winner;
+mod cogi_move;
+mod cogi_spawner;
 
-pub use self::{
-    bounce::BounceSystem,
-    move_balls::MoveBallsSystem,
-    paddle::PaddleSystem,
-    winner::{ScoreText, WinnerSystem},
-};
+pub use self::cogi_move::CogiMoveSystem;
+pub use self::cogi_spawner::CogiSpawnSystem;

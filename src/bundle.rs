@@ -1,4 +1,4 @@
-use crate::systems::{BounceSystem, MoveBallsSystem, PaddleSystem, WinnerSystem};
+use crate::systems::{CogiMoveSystem, CogiSpawnSystem};
 use amethyst::{
     core::bundle::SystemBundle,
     ecs::prelude::{DispatcherBuilder, World},
@@ -15,18 +15,8 @@ impl<'a, 'b> SystemBundle<'a, 'b> for PongBundle {
         _world: &mut World,
         builder: &mut DispatcherBuilder<'a, 'b>,
     ) -> Result<(), Error> {
-        builder.add(PaddleSystem, "paddle_system", &["input_system"]);
-        builder.add(MoveBallsSystem, "ball_system", &[]);
-        builder.add(
-            BounceSystem,
-            "collision_system",
-            &["paddle_system", "ball_system"],
-        );
-        builder.add(
-            WinnerSystem,
-            "winner_system",
-            &["paddle_system", "ball_system"],
-        );
+        builder.add(CogiMoveSystem, "cogi_move_system", &[]);
+        builder.add(CogiSpawnSystem::new(), "cogi_spawn_system", &[]);
         Ok(())
     }
 }
