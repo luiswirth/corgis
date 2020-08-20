@@ -3,6 +3,8 @@
 mod bundle;
 mod systems;
 mod universe;
+mod neural_network;
+mod cogi;
 
 use amethyst::{
     core::{frame_limiter::FrameRateLimitStrategy, transform::TransformBundle},
@@ -20,8 +22,8 @@ use amethyst::{
 use crate::bundle::PongBundle;
 use std::time::Duration;
 
-pub const ARENA_HEIGHT: f32 = 100.0;
-pub const ARENA_WIDTH: f32 = 100.0;
+pub const ARENA_HEIGHT: f32 = 200.0;
+pub const ARENA_WIDTH: f32 = 200.0;
 
 fn main() -> amethyst::Result<()> {
     amethyst::start_logger(Default::default());

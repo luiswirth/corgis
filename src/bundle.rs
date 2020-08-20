@@ -1,4 +1,4 @@
-use crate::systems::{CogiMoveSystem, CogiSpawnSystem};
+use crate::systems::{CogiMoveSystem, CogiSpawnSystem, CogiBrainSystem};
 use amethyst::{
     core::bundle::SystemBundle,
     ecs::prelude::{DispatcherBuilder, World},
@@ -17,6 +17,7 @@ impl<'a, 'b> SystemBundle<'a, 'b> for PongBundle {
     ) -> Result<(), Error> {
         builder.add(CogiMoveSystem, "cogi_move_system", &[]);
         builder.add(CogiSpawnSystem::new(), "cogi_spawn_system", &[]);
+        builder.add(CogiBrainSystem, "cogi_brain_system", &[]);
         Ok(())
     }
 }

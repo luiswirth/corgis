@@ -1,4 +1,5 @@
-use crate::universe::{Cogi, ARENA_HEIGHT, ARENA_WIDTH};
+use crate::universe::{ARENA_HEIGHT, ARENA_WIDTH};
+use crate::cogi::{Cogi, CogiBrain};
 
 use amethyst::{
     assets::Handle,
@@ -8,6 +9,7 @@ use amethyst::{
     renderer::{SpriteRender, SpriteSheet},
 };
 use rand::{rngs::ThreadRng, thread_rng, Rng};
+use crate::neural_network::NeuralNetwork;
 
 pub struct CogiSpawnSystem {
     counter: u32,
@@ -48,7 +50,10 @@ impl<'s> System<'s> for CogiSpawnSystem {
                         name: String::from("SomeCogi"),
                         color: [1.0, 0.0, 0.0, 1.0],
                         velocity: [rng.gen(), rng.gen()],
-                        force: 0.0,
+                        force: [0.0, 0.0],
+                        brain: CogiBrain {
+                            neural_network: NeuralNetwork::new_random(vec![5, 5, 7, 5, 2])
+                        },
                     },
                     &mut cogis,
                 )
