@@ -1,15 +1,17 @@
-use crate::cogi::{self, Cogi, CogiBrain};
-use crate::universe::{ARENA_HEIGHT, ARENA_WIDTH};
+use crate::{
+    cogi::{Cogi, CogiBrain},
+    genes::Genes,
+    universe::Universe,
+};
 
 use crate::neural_network::NeuralNetwork;
 use amethyst::{
     assets::Handle,
     core::transform::Transform,
-    derive::SystemDesc,
     ecs::prelude::{Entities, Join, ReadExpect, System, WriteStorage},
     renderer::{SpriteRender, SpriteSheet},
 };
-use rand::{rngs::ThreadRng, thread_rng, Rng};
+use rand::{thread_rng, Rng};
 
 pub struct CogiSpawnSystem {
     counter: u32,
@@ -42,13 +44,15 @@ impl<'s> System<'s> for CogiSpawnSystem {
         }
 
         let mut local_transform = Transform::default();
-        local_transform.set_translation_xyz(ARENA_WIDTH / 2.0, ARENA_HEIGHT / 2.0, 0.0);
+        local_transform.set_translation_xyz(Universe::WIDTH / 2.0, Universe::HEIGHT / 2.0, 0.0);
 
         let sprite_render = SpriteRender::new(sprite_sheet.clone(), 1);
 
         let mut rng = thread_rng();
 
         for _ in self.counter..50 {
+            let genes = Genes::random(&mut rng);
+
             entities
                 .build_entity()
                 .with(local_transform.clone(), &mut transforms)
@@ -56,13 +60,15 @@ impl<'s> System<'s> for CogiSpawnSystem {
                     Cogi {
                         name: String::from("SomeCogi"),
                         color: [1.0, 0.0, 0.0, 1.0],
-                        energy: cogi::INITAL_ENERGY,
+                        energy: Cogi::INITAL_ENERGY,
 
                         velocity: [rng.gen(), rng.gen()],
                         force: [0.0, 0.0],
 
+                        genes: genes.clone(),
+
                         brain: CogiBrain {
-                            neural_network: NeuralNetwork::new_random(vec![5, 5, 7, 5, 2]),
+                            neural_network: NeuralNetwork::new(genes.brain.clone()),
                         },
                     },
                     &mut cogis,

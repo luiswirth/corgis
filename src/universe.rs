@@ -1,16 +1,19 @@
-pub use crate::{ARENA_HEIGHT, ARENA_WIDTH};
 use amethyst::{
     assets::{AssetStorage, Handle, Loader},
     core::{timing::Time, transform::Transform},
     ecs::prelude::*,
     prelude::*,
-    renderer::{Camera, ImageFormat, SpriteRender, SpriteSheet, SpriteSheetFormat, Texture},
+    renderer::{Camera, ImageFormat, SpriteSheet, SpriteSheetFormat, Texture},
 };
-use crate::neural_network::NeuralNetwork;
 
 #[derive(Default)]
 pub struct Universe {
     //sprite_sheet_handle: Option<Handle<SpriteSheet>>,
+}
+
+impl Universe {
+    pub const WIDTH: f32 = 200.0;
+    pub const HEIGHT: f32 = 200.0;
 }
 
 impl SimpleState for Universe {
@@ -67,11 +70,11 @@ fn load_sprite_sheet(world: &mut World) -> Handle<SpriteSheet> {
 fn initialise_camera(world: &mut World) {
     // Setup camera in a way that our screen covers whole arena and (0, 0) is in the bottom left.
     let mut transform = Transform::default();
-    transform.set_translation_xyz(ARENA_WIDTH * 0.5, ARENA_HEIGHT * 0.5, 1.0);
+    transform.set_translation_xyz(Universe::WIDTH * 0.5, Universe::HEIGHT * 0.5, 1.0);
 
     world
         .create_entity()
-        .with(Camera::standard_2d(ARENA_WIDTH, ARENA_HEIGHT))
+        .with(Camera::standard_2d(Universe::WIDTH, Universe::HEIGHT))
         .with(transform)
         .build();
 }

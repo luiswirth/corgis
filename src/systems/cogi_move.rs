@@ -1,9 +1,9 @@
 use crate::cogi::Cogi;
-use crate::{ARENA_HEIGHT, ARENA_WIDTH};
+use crate::universe::Universe;
 use amethyst::{
     core::{timing::Time, transform::Transform},
     derive::SystemDesc,
-    ecs::prelude::{Join, Read, ReadStorage, System, SystemData, WriteStorage},
+    ecs::prelude::{Join, Read, System, SystemData, WriteStorage},
 };
 
 /// This system is responsible for moving all balls according to their speed
@@ -50,12 +50,12 @@ impl<'s> System<'s> for CogiMoveSystem {
                 transform.translation_mut().y = 0.0;
                 cogi.velocity[1] *= -1.0;
             }
-            if transform.translation().x >= ARENA_WIDTH {
-                transform.translation_mut().x = ARENA_WIDTH;
+            if transform.translation().x >= Universe::WIDTH {
+                transform.translation_mut().x = Universe::WIDTH;
                 cogi.velocity[0] *= -1.0;
             }
-            if transform.translation().y >= ARENA_HEIGHT {
-                transform.translation_mut().y = ARENA_HEIGHT;
+            if transform.translation().y >= Universe::HEIGHT {
+                transform.translation_mut().y = Universe::HEIGHT;
                 cogi.velocity[1] *= -1.0;
             }
         }

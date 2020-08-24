@@ -1,10 +1,11 @@
 //! Pong
 
 mod bundle;
+mod cogi;
+mod genes;
+mod neural_network;
 mod systems;
 mod universe;
-mod neural_network;
-mod cogi;
 
 use amethyst::{
     core::{frame_limiter::FrameRateLimitStrategy, transform::TransformBundle},
@@ -19,11 +20,8 @@ use amethyst::{
     utils::application_root_dir,
 };
 
-use crate::bundle::PongBundle;
+use crate::bundle::CogiBundle;
 use std::time::Duration;
-
-pub const ARENA_HEIGHT: f32 = 200.0;
-pub const ARENA_WIDTH: f32 = 200.0;
 
 fn main() -> amethyst::Result<()> {
     amethyst::start_logger(Default::default());
@@ -50,7 +48,7 @@ fn main() -> amethyst::Result<()> {
         .with_bundle(
             InputBundle::<StringBindings>::new().with_bindings_from_file(key_bindings_path)?,
         )?
-        .with_bundle(PongBundle)?
+        .with_bundle(CogiBundle)?
         .with_bundle(UiBundle::<StringBindings>::new())?
         .with_bundle(
             RenderingBundle::<DefaultBackend>::new()

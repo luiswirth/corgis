@@ -20,7 +20,7 @@ impl<'s> System<'s> for CogiBrainSystem {
 
     fn run(&mut self, (mut cogis, transforms, time): Self::SystemData) {
         for (mut cogi, transform) in (&mut cogis, &transforms).join() {
-            let input = |c, r| match r {
+            let input = |_c, r| match r {
                 0 => transform.translation().x,
                 1 => transform.translation().x,
                 2 => cogi.velocity[0],
@@ -36,8 +36,6 @@ impl<'s> System<'s> for CogiBrainSystem {
             }
             cogi.force[0] = output[0] - 0.5;
             cogi.force[1] = output[1] - 0.5;
-
-            cogi.brain.neural_network.mutate_weights();
         }
     }
 }

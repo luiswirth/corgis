@@ -1,13 +1,5 @@
-use crate::neural_network::NeuralNetwork;
-use amethyst::{
-    assets::{AssetStorage, Handle, Loader},
-    core::{timing::Time, transform::Transform},
-    ecs::prelude::*,
-    prelude::*,
-    renderer::{Camera, ImageFormat, SpriteRender, SpriteSheet, SpriteSheetFormat, Texture},
-};
-
-pub const INITAL_ENERGY: f32 = 200.0;
+use crate::{genes::Genes, neural_network::NeuralNetwork};
+use amethyst::ecs::prelude::*;
 
 pub struct Cogi {
     pub name: String,
@@ -17,7 +9,11 @@ pub struct Cogi {
     pub velocity: [f32; 2],
     pub force: [f32; 2],
 
+    pub genes: Genes,
     pub brain: CogiBrain,
+}
+impl Cogi {
+    pub const INITAL_ENERGY: f32 = 200.0;
 }
 
 pub struct CogiBrain {
