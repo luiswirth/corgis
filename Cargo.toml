@@ -10,7 +10,7 @@ edition = "2018"
 amethyst = "0.15.3"
 
 nalgebra = "0.21.1"
-rand_distr = "0.2.2"
+rand_distr = "0.3.0"
 rand = "0.7.3"
 
 log = "0.4.11"
@@ -18,9 +18,8 @@ log = "0.4.11"
 #nphysics2d
 
 [features]
-default = ["metal"]
+default = ["vulkan"]
 vulkan = ["amethyst/vulkan"]
 metal = ["amethyst/metal"]
 #empty = ["amethyst/empty"]
-#metal = ["amethyst/metal"]
 #nightly = ["amethyst/nightly"]

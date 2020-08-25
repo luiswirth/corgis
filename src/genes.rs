@@ -2,7 +2,7 @@ use nalgebra::{DMatrix, DVector};
 use rand::{distributions::Uniform, Rng};
 use rand_distr::Normal;
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct Genes {
     pub mutation: MutationGene,
     pub brain: BrainGene,
@@ -27,7 +27,7 @@ trait Gene {
 
 /// A mutation factor which dictates how much all genes are mutated.
 /// It itself is a gene so that itself can be mutated.
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct MutationGene(f32);
 
 impl MutationGene {
@@ -45,7 +45,7 @@ impl Gene for MutationGene {
     }
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct BrainGene {
     pub shape: Vec<usize>,
     pub weights: Vec<DMatrix<f32>>,
@@ -73,12 +73,14 @@ impl Gene for BrainGene {
             .sample(Normal::new(Self::DEPTH_MEAN, Self::DEPTH_VARIANCE).unwrap())
             .round() as usize;
         let mut shape = Vec::with_capacity(depth);
-        for _ in 0..depth {
+        shape.push(5);
+        for _ in 1..depth - 1 {
             shape.push(
                 rng.sample(Normal::new(Self::WIDTH_MEAN, Self::WIDTH_VARIANCE).unwrap())
                     .round() as usize,
             );
         }
+        shape.push(2);
 
         // generate weights and biases
         let distr = Normal::new(Self::WEIGHT_MEAN, Self::WEIGHT_VARIANCE).unwrap();
@@ -115,7 +117,7 @@ impl Gene for BrainGene {
     }
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct ColorGene {
     r: u8,
     g: u8,
