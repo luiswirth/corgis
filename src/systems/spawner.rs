@@ -1,5 +1,5 @@
 use crate::{
-    cogi::{Cogi, CogiBrain},
+    corgi::{Corgi, CorgiBrain},
     genes::Genes,
     universe::Universe,
 };
@@ -13,20 +13,20 @@ use amethyst::{
 };
 use rand::{thread_rng, Rng};
 
-pub struct CogiSpawnSystem {
+pub struct SpawnerSystem {
     counter: u32,
 }
 
-impl CogiSpawnSystem {
+impl SpawnerSystem {
     pub fn new() -> Self {
         Self { counter: 0 }
     }
 }
 
-impl<'s> System<'s> for CogiSpawnSystem {
+impl<'s> System<'s> for SpawnerSystem {
     type SystemData = (
         WriteStorage<'s, Transform>,
-        WriteStorage<'s, Cogi>,
+        WriteStorage<'s, Corgi>,
         WriteStorage<'s, SpriteRender>,
         Entities<'s>,
         ReadExpect<'s, Handle<SpriteSheet>>,
@@ -34,10 +34,10 @@ impl<'s> System<'s> for CogiSpawnSystem {
 
     fn run(
         &mut self,
-        (mut transforms, mut cogis, mut sprite_renderers, entities, sprite_sheet): Self::SystemData,
+        (mut transforms, mut corgis, mut sprite_renderers, entities, sprite_sheet): Self::SystemData,
     ) {
-        for (e, cogi) in (&*entities, &cogis).join() {
-            if cogi.energy < 0.0 {
+        for (e, corgi) in (&*entities, &corgis).join() {
+            if corgi.energy < 0.0 {
                 self.counter -= 1;
                 entities.delete(e).unwrap();
             }
@@ -57,21 +57,21 @@ impl<'s> System<'s> for CogiSpawnSystem {
                 .build_entity()
                 .with(local_transform.clone(), &mut transforms)
                 .with(
-                    Cogi {
-                        name: String::from("SomeCogi"),
+                    Corgi {
+                        name: String::from("SomeCorgi"),
                         color: [1.0, 0.0, 0.0, 1.0],
-                        energy: Cogi::INITAL_ENERGY,
+                        energy: Corgi::INITAL_ENERGY,
 
                         velocity: [rng.gen(), rng.gen()],
                         force: [0.0, 0.0],
 
                         genes: genes.clone(),
 
-                        brain: CogiBrain {
+                        brain: CorgiBrain {
                             neural_network: NeuralNetwork::new(genes.brain.clone()),
                         },
                     },
-                    &mut cogis,
+                    &mut corgis,
                 )
                 .with(sprite_render.clone(), &mut sprite_renderers)
                 .build();

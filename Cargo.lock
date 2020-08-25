@@ -715,17 +715,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "cogis"
-version = "0.1.0"
-dependencies = [
- "amethyst",
- "log",
- "nalgebra 0.21.1",
- "rand 0.7.3",
- "rand_distr 0.3.0",
-]
-
-[[package]]
 name = "color_quant"
 version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -845,6 +834,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d6570ee6e089131e928d5ec9236db9e818aa3cf850f48b0eec6ef700571271d4"
 dependencies = [
  "bindgen",
+]
+
+[[package]]
+name = "corgis"
+version = "0.1.0"
+dependencies = [
+ "amethyst",
+ "log",
+ "nalgebra 0.21.1",
+ "rand 0.7.3",
+ "rand_distr 0.3.0",
 ]
 
 [[package]]

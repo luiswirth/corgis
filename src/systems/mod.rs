@@ -1,7 +1,7 @@
-mod cogi_brain;
-mod cogi_move;
-mod cogi_spawner;
+mod brain;
+mod movement;
+mod spawner;
 
-pub use self::cogi_brain::CogiBrainSystem;
-pub use self::cogi_move::CogiMoveSystem;
-pub use self::cogi_spawner::CogiSpawnSystem;
+pub use self::brain::BrainSystem;
+pub use self::movement::MovementSystem;
+pub use self::spawner::SpawnerSystem;

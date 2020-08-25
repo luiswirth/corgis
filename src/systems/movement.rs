@@ -1,4 +1,4 @@
-use crate::cogi::Cogi;
+use crate::corgi::Corgi;
 use crate::universe::Universe;
 use amethyst::{
     core::{timing::Time, transform::Transform},
@@ -9,54 +9,54 @@ use amethyst::{
 /// This system is responsible for moving all balls according to their speed
 /// and the time passed.
 #[derive(SystemDesc)]
-pub struct CogiMoveSystem;
+pub struct MovementSystem;
 
-impl<'s> System<'s> for CogiMoveSystem {
+impl<'s> System<'s> for MovementSystem {
     type SystemData = (
-        WriteStorage<'s, Cogi>,
+        WriteStorage<'s, Corgi>,
         WriteStorage<'s, Transform>,
         Read<'s, Time>,
     );
 
-    fn run(&mut self, (mut cogis, mut locals, time): Self::SystemData) {
+    fn run(&mut self, (mut corgis, mut locals, time): Self::SystemData) {
         // Move every ball according to its speed, and the time passed.
-        for (cogi, transform) in (&mut cogis, &mut locals).join() {
-            cogi.velocity[0] += cogi.force[0];
-            cogi.velocity[1] += cogi.force[1];
+        for (corgi, transform) in (&mut corgis, &mut locals).join() {
+            corgi.velocity[0] += corgi.force[0];
+            corgi.velocity[1] += corgi.force[1];
 
             // friction
-            cogi.velocity[0] *= 0.95;
-            cogi.velocity[1] *= 0.95;
+            corgi.velocity[0] *= 0.95;
+            corgi.velocity[1] *= 0.95;
             let distance = [
-                cogi.velocity[0] * time.delta_seconds(),
-                cogi.velocity[1] * time.delta_seconds(),
+                corgi.velocity[0] * time.delta_seconds(),
+                corgi.velocity[1] * time.delta_seconds(),
             ];
-            let work = [distance[0] * cogi.force[0], distance[1] * cogi.force[1]];
+            let work = [distance[0] * corgi.force[0], distance[1] * corgi.force[1]];
             let work = (work[0].powf(2.0) + work[1].powf(2.0)).sqrt();
 
-            cogi.energy -= work;
+            corgi.energy -= work;
 
             transform.prepend_translation_x(distance[0]);
             transform.prepend_translation_y(distance[1]);
 
-            cogi.force[0] = 0.0;
-            cogi.force[1] = 0.0;
+            corgi.force[0] = 0.0;
+            corgi.force[1] = 0.0;
 
             if transform.translation().x < 0.0 {
                 transform.translation_mut().x = 0.0;
-                cogi.velocity[0] *= -1.0;
+                corgi.velocity[0] *= -1.0;
             }
             if transform.translation().y < 0.0 {
                 transform.translation_mut().y = 0.0;
-                cogi.velocity[1] *= -1.0;
+                corgi.velocity[1] *= -1.0;
             }
             if transform.translation().x >= Universe::WIDTH {
                 transform.translation_mut().x = Universe::WIDTH;
-                cogi.velocity[0] *= -1.0;
+                corgi.velocity[0] *= -1.0;
             }
             if transform.translation().y >= Universe::HEIGHT {
                 transform.translation_mut().y = Universe::HEIGHT;
-                cogi.velocity[1] *= -1.0;
+                corgi.velocity[1] *= -1.0;
             }
         }
     }

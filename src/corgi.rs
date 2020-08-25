@@ -1,7 +1,7 @@
 use crate::{genes::Genes, neural_network::NeuralNetwork};
 use amethyst::ecs::prelude::*;
 
-pub struct Cogi {
+pub struct Corgi {
     pub name: String,
     pub color: [f32; 4],
     pub energy: f32,
@@ -10,16 +10,16 @@ pub struct Cogi {
     pub force: [f32; 2],
 
     pub genes: Genes,
-    pub brain: CogiBrain,
+    pub brain: CorgiBrain,
 }
-impl Cogi {
+impl Corgi {
     pub const INITAL_ENERGY: f32 = 200.0;
 }
 
-pub struct CogiBrain {
+pub struct CorgiBrain {
     pub neural_network: NeuralNetwork,
 }
 
-impl Component for Cogi {
+impl Component for Corgi {
     type Storage = DenseVecStorage<Self>;
 }

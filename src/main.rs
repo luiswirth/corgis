@@ -1,7 +1,7 @@
 //! Pong
 
 mod bundle;
-mod cogi;
+mod corgi;
 mod genes;
 mod neural_network;
 mod systems;
@@ -20,7 +20,7 @@ use amethyst::{
     utils::application_root_dir,
 };
 
-use crate::bundle::CogiBundle;
+use crate::bundle::CorgiBundle;
 use std::time::Duration;
 
 fn main() -> amethyst::Result<()> {
@@ -48,7 +48,7 @@ fn main() -> amethyst::Result<()> {
         .with_bundle(
             InputBundle::<StringBindings>::new().with_bindings_from_file(key_bindings_path)?,
         )?
-        .with_bundle(CogiBundle)?
+        .with_bundle(CorgiBundle)?
         .with_bundle(UiBundle::<StringBindings>::new())?
         .with_bundle(
             RenderingBundle::<DefaultBackend>::new()
