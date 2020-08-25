@@ -17,6 +17,12 @@ impl Genes {
             color: ColorGene::random(rng),
         }
     }
+
+    pub fn mutate(&mut self, rng: &mut impl Rng) {
+        self.mutation.mutate(1.0, rng);
+        self.brain.mutate(self.mutation.0, rng);
+        self.color.mutate(self.mutation.0, rng);
+    }
 }
 
 trait Gene {
@@ -80,7 +86,7 @@ impl Gene for BrainGene {
                     .round() as usize,
             );
         }
-        shape.push(2);
+        shape.push(3);
 
         // generate weights and biases
         let distr = Normal::new(Self::WEIGHT_MEAN, Self::WEIGHT_VARIANCE).unwrap();
@@ -138,17 +144,23 @@ impl Gene for ColorGene {
     }
 
     fn mutate(&mut self, strength: f32, rng: &mut impl Rng) {
-        self.r += rng
-            .sample(Normal::new(Self::MUTATION_MEAN, Self::MUTATION_VARIATION * strength).unwrap())
-            .round() as u8;
-        self.r %= 255;
-        self.g += rng
-            .sample(Normal::new(Self::MUTATION_MEAN, Self::MUTATION_VARIATION * strength).unwrap())
-            .round() as u8;
-        self.g %= 255;
-        self.b += rng
-            .sample(Normal::new(Self::MUTATION_MEAN, Self::MUTATION_VARIATION * strength).unwrap())
-            .round() as u8;
-        self.b %= 255;
+        self.r = self.r.wrapping_add(
+            rng.sample(
+                Normal::new(Self::MUTATION_MEAN, Self::MUTATION_VARIATION * strength).unwrap(),
+            )
+            .round() as u8,
+        );
+        self.g = self.g.wrapping_add(
+            rng.sample(
+                Normal::new(Self::MUTATION_MEAN, Self::MUTATION_VARIATION * strength).unwrap(),
+            )
+            .round() as u8,
+        );
+        self.b = self.b.wrapping_add(
+            rng.sample(
+                Normal::new(Self::MUTATION_MEAN, Self::MUTATION_VARIATION * strength).unwrap(),
+            )
+            .round() as u8,
+        );
     }
 }

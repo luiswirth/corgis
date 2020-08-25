@@ -36,6 +36,7 @@ impl<'s> System<'s> for BrainSystem {
             }
             corgi.force[0] = output[0] - 0.5;
             corgi.force[1] = output[1] - 0.5;
+            corgi.will_to_reproduce = output[0] >= 0.5;
         }
     }
 }

@@ -1,4 +1,4 @@
-use crate::systems::{BrainSystem, MovementSystem, SpawnerSystem};
+use crate::systems::*;
 use amethyst::{
     core::bundle::SystemBundle,
     ecs::prelude::{DispatcherBuilder, World},
@@ -15,9 +15,10 @@ impl<'a, 'b> SystemBundle<'a, 'b> for CorgiBundle {
         _world: &mut World,
         builder: &mut DispatcherBuilder<'a, 'b>,
     ) -> Result<(), Error> {
-        builder.add(SpawnerSystem::new(), "corgi_spawn_system", &[]);
-        builder.add(BrainSystem, "corgi_brain_system", &[]);
-        builder.add(MovementSystem, "corgi_move_system", &["corgi_brain_system"]);
+        builder.add(SpawnerSystem::new(), "spawn_system", &[]);
+        builder.add(BrainSystem, "brain_system", &[]);
+        builder.add(ReproduceSystem, "reproduction_system", &["brain_system"]);
+        builder.add(MovementSystem, "move_system", &["brain_system"]);
         Ok(())
     }
 }

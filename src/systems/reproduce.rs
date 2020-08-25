@@ -13,17 +13,13 @@ use amethyst::{
 };
 use rand::{thread_rng, Rng};
 
-pub struct SpawnerSystem {
-    counter: u32,
-}
+pub struct ReproduceSystem;
 
-impl SpawnerSystem {
-    pub fn new() -> Self {
-        Self { counter: 0 }
-    }
-}
+impl ReproduceSystem {}
 
-impl<'s> System<'s> for SpawnerSystem {
+const REPRODUCTION_ENERGY: f32 = 100.0;
+
+impl<'s> System<'s> for ReproduceSystem {
     type SystemData = (
         WriteStorage<'s, Transform>,
         WriteStorage<'s, Corgi>,
@@ -36,33 +32,23 @@ impl<'s> System<'s> for SpawnerSystem {
         &mut self,
         (mut transforms, mut corgis, mut sprite_renderers, entities, sprite_sheet): Self::SystemData,
     ) {
-        for (e, corgi) in (&*entities, &corgis).join() {
-            if corgi.energy < 0.0 {
-                self.counter -= 1;
-                entities.delete(e).unwrap();
-            }
-        }
-
-        let mut local_transform = Transform::default();
-        local_transform.set_translation_xyz(Universe::WIDTH / 2.0, Universe::HEIGHT / 2.0, 0.0);
-
+        let mut rng = thread_rng();
         let sprite_render = SpriteRender::new(sprite_sheet.clone(), 1);
 
-        let mut rng = thread_rng();
+        let mut new_corgis: Vec<(Corgi, Transform)> = Vec::new();
 
-        for _ in self.counter..50 {
-            let genes = Genes::random(&mut rng);
+        for (mut corgi, transform) in (&mut corgis, &transforms).join() {
+            if corgi.will_to_reproduce && corgi.energy >= REPRODUCTION_ENERGY {
+                let mut genes = corgi.genes.clone();
+                genes.mutate(&mut rng);
 
-            entities
-                .build_entity()
-                .with(local_transform.clone(), &mut transforms)
-                .with(
+                new_corgis.push((
                     Corgi {
                         name: String::from("SomeCorgi"),
                         color: [1.0, 0.0, 0.0, 1.0],
-                        energy: Corgi::INITAL_ENERGY,
+                        energy: 50.0,
 
-                        velocity: [rng.gen(), rng.gen()],
+                        velocity: [0.0, 0.0],
                         force: [0.0, 0.0],
 
                         genes: genes.clone(),
@@ -73,11 +59,20 @@ impl<'s> System<'s> for SpawnerSystem {
 
                         will_to_reproduce: false,
                     },
-                    &mut corgis,
-                )
+                    transform.clone(),
+                ));
+
+                corgi.energy -= REPRODUCTION_ENERGY;
+            }
+        }
+
+        for (c, t) in new_corgis {
+            entities
+                .build_entity()
+                .with(c, &mut corgis)
+                .with(t, &mut transforms)
                 .with(sprite_render.clone(), &mut sprite_renderers)
                 .build();
         }
-        self.counter = 50;
     }
 }

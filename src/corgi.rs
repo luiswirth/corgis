@@ -11,6 +11,8 @@ pub struct Corgi {
 
     pub genes: Genes,
     pub brain: CorgiBrain,
+
+    pub will_to_reproduce: bool,
 }
 impl Corgi {
     pub const INITAL_ENERGY: f32 = 200.0;

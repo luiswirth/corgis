@@ -31,10 +31,12 @@ impl<'s> System<'s> for MovementSystem {
                 corgi.velocity[0] * time.delta_seconds(),
                 corgi.velocity[1] * time.delta_seconds(),
             ];
-            let work = [distance[0] * corgi.force[0], distance[1] * corgi.force[1]];
-            let work = (work[0].powf(2.0) + work[1].powf(2.0)).sqrt();
+            let movement_work = [distance[0] * corgi.force[0], distance[1] * corgi.force[1]];
+            let movement_work = (movement_work[0].powf(2.0) + movement_work[1].powf(2.0)).sqrt();
 
-            corgi.energy -= work;
+            let life_work = 0.05;
+
+            corgi.energy -= (movement_work + life_work);
 
             transform.prepend_translation_x(distance[0]);
             transform.prepend_translation_y(distance[1]);
