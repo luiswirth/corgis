@@ -1,7 +1,5 @@
 use crate::{
     corgi::{Corgi, CorgiBrain},
-    genes::Genes,
-    universe::Universe,
 };
 
 use crate::neural_network::NeuralNetwork;
@@ -11,7 +9,7 @@ use amethyst::{
     ecs::prelude::{Entities, Join, ReadExpect, System, WriteStorage},
     renderer::{SpriteRender, SpriteSheet},
 };
-use rand::{thread_rng, Rng};
+use rand::{thread_rng};
 
 pub struct ReproduceSystem;
 

@@ -36,7 +36,7 @@ impl<'s> System<'s> for MovementSystem {
 
             let life_work = 0.05;
 
-            corgi.energy -= (movement_work + life_work);
+            corgi.energy -= movement_work + life_work;
 
             transform.prepend_translation_x(distance[0]);
             transform.prepend_translation_y(distance[1]);

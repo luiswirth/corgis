@@ -6,6 +6,7 @@ mod genes;
 mod neural_network;
 mod systems;
 mod universe;
+mod brain;
 
 use amethyst::{
     core::{frame_limiter::FrameRateLimitStrategy, transform::TransformBundle},

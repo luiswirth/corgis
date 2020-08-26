@@ -843,8 +843,11 @@ dependencies = [
  "amethyst",
  "log",
  "nalgebra 0.21.1",
+ "proc-macro2 1.0.19",
+ "quote 1.0.7",
  "rand 0.7.3",
  "rand_distr 0.3.0",
+ "syn 1.0.39",
 ]
 
 [[package]]
