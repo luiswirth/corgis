@@ -1,3 +1,4 @@
+use crate::brain::{BrainInput, BrainOutput, Decisions, Perception};
 use na::{DMatrix, DVector};
 use rand::{distributions::Uniform, Rng};
 use rand_distr::Normal;
@@ -79,14 +80,14 @@ impl Gene for BrainGene {
             .sample(Normal::new(Self::DEPTH_MEAN, Self::DEPTH_VARIANCE).unwrap())
             .round() as usize;
         let mut shape = Vec::with_capacity(depth);
-        shape.push(5);
         for _ in 1..depth - 1 {
             shape.push(
                 rng.sample(Normal::new(Self::WIDTH_MEAN, Self::WIDTH_VARIANCE).unwrap())
                     .round() as usize,
             );
         }
-        shape.push(3);
+        shape.insert(0, Perception::len());
+        shape.push(Decisions::len());
 
         // generate weights and biases
         let distr = Normal::new(Self::WEIGHT_MEAN, Self::WEIGHT_VARIANCE).unwrap();

@@ -1,10 +1,11 @@
-//mod brain;
-mod bundle;
-mod corgi;
-mod genes;
-mod neural_network;
-mod systems;
-mod universe;
+pub mod brain;
+pub mod bundle;
+pub mod corgi;
+pub mod genes;
+pub mod neural_network;
+pub mod systems;
+pub mod universe;
+pub mod util;
 
 extern crate nalgebra as na;
 

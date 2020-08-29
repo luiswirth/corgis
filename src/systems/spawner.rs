@@ -1,8 +1,4 @@
-use crate::{
-    corgi::{Corgi, CorgiBrain},
-    genes::Genes,
-    universe::Universe,
-};
+use crate::{brain::Brain, corgi::Corgi, genes::Genes, universe::Universe, util::types::Color};
 
 use crate::neural_network::NeuralNetwork;
 use amethyst::{
@@ -12,7 +8,7 @@ use amethyst::{
     renderer::{SpriteRender, SpriteSheet},
 };
 use na::Vector2;
-use rand::thread_rng;
+use rand::{thread_rng, Rng};
 
 pub struct SpawnerSystem {
     counter: u32,
@@ -59,21 +55,21 @@ impl<'s> System<'s> for SpawnerSystem {
                 .with(local_transform.clone(), &mut transforms)
                 .with(
                     Corgi {
+                        uuid: rng.gen(),
                         name: String::from("SomeCorgi"),
-                        color: [1.0, 0.0, 0.0, 1.0],
-                        energy: Corgi::INITAL_ENERGY,
+                        generation: 0,
 
+                        energy: Corgi::INITAL_ENERGY,
                         mass: 1.0,
                         velocity: Vector2::from_element(0.0),
                         force: Vector2::from_element(0.0),
 
                         genes: genes.clone(),
 
-                        brain: CorgiBrain {
-                            neural_network: NeuralNetwork::new(genes.brain.clone()),
-                        },
+                        brain: Brain::new(genes.brain.clone()),
 
-                        will_to_reproduce: false,
+                        color: Color::new(0.0, 0.0, 0.0),
+                        reproduction_will: false,
                     },
                     &mut corgis,
                 )

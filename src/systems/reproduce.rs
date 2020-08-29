@@ -1,6 +1,6 @@
-use crate::corgi::{Corgi, CorgiBrain};
+use crate::{brain::Brain, corgi::Corgi};
 
-use crate::neural_network::NeuralNetwork;
+use crate::{neural_network::NeuralNetwork, util::types::Color};
 use amethyst::{
     assets::Handle,
     core::transform::Transform,
@@ -8,7 +8,7 @@ use amethyst::{
     renderer::{SpriteRender, SpriteSheet},
 };
 use na::Vector2;
-use rand::thread_rng;
+use rand::{thread_rng, Rng};
 
 pub struct ReproduceSystem;
 
@@ -35,27 +35,27 @@ impl<'s> System<'s> for ReproduceSystem {
         let mut new_corgis: Vec<(Corgi, Transform)> = Vec::new();
 
         for (mut corgi, transform) in (&mut corgis, &transforms).join() {
-            if corgi.will_to_reproduce && corgi.energy >= REPRODUCTION_ENERGY {
+            if corgi.reproduction_will && corgi.energy >= REPRODUCTION_ENERGY {
                 let mut genes = corgi.genes.clone();
                 genes.mutate(&mut rng);
 
                 new_corgis.push((
                     Corgi {
+                        uuid: rng.gen(),
                         name: String::from("SomeCorgi"),
-                        color: [1.0, 0.0, 0.0, 1.0],
-                        energy: 50.0,
+                        generation: 0,
 
+                        energy: 50.0,
                         mass: 1.0,
                         velocity: Vector2::from_element(0.0),
                         force: Vector2::from_element(0.0),
 
                         genes: genes.clone(),
 
-                        brain: CorgiBrain {
-                            neural_network: NeuralNetwork::new(genes.brain.clone()),
-                        },
+                        brain: Brain::new(genes.brain.clone()),
 
-                        will_to_reproduce: false,
+                        color: Color::new(0.0, 0.0, 0.0),
+                        reproduction_will: false,
                     },
                     transform.clone(),
                 ));
