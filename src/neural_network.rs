@@ -1,4 +1,4 @@
-use nalgebra::DVector;
+use na::DVector;
 
 use crate::genes::BrainGene;
 

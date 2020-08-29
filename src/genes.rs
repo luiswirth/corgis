@@ -1,4 +1,4 @@
-use nalgebra::{DMatrix, DVector};
+use na::{DMatrix, DVector};
 use rand::{distributions::Uniform, Rng};
 use rand_distr::Normal;
 
@@ -66,10 +66,10 @@ impl BrainGene {
     const WIDTH_VARIANCE: f32 = 2.0;
 
     const WEIGHT_MEAN: f32 = 0.0;
-    const WEIGHT_VARIANCE: f32 = 5.0;
+    const WEIGHT_VARIANCE: f32 = 1.0;
 
-    const WEIGHT_MUTATION_MEAN: f32 = 0.02;
-    const WEIGHT_MUTATION_VARIANCE: f32 = 0.01;
+    const WEIGHT_MUTATION_MEAN: f32 = 0.0;
+    const WEIGHT_MUTATION_VARIANCE: f32 = 0.02;
 }
 
 impl Gene for BrainGene {

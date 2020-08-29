@@ -11,7 +11,8 @@ use amethyst::{
     ecs::prelude::{Entities, Join, ReadExpect, System, WriteStorage},
     renderer::{SpriteRender, SpriteSheet},
 };
-use rand::{thread_rng, Rng};
+use na::Vector2;
+use rand::thread_rng;
 
 pub struct SpawnerSystem {
     counter: u32,
@@ -62,8 +63,9 @@ impl<'s> System<'s> for SpawnerSystem {
                         color: [1.0, 0.0, 0.0, 1.0],
                         energy: Corgi::INITAL_ENERGY,
 
-                        velocity: [rng.gen(), rng.gen()],
-                        force: [0.0, 0.0],
+                        mass: 1.0,
+                        velocity: Vector2::from_element(0.0),
+                        force: Vector2::from_element(0.0),
 
                         genes: genes.clone(),
 

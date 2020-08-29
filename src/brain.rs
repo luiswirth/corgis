@@ -1,9 +1,8 @@
-use nalgebra::DVector;
-
+use na::{DVector, Vector2, U2};
 
 //#[derive(BrainInput)]
 pub struct BrainInputs {
-    velocity: [f32; 2],
+    velocity: Vector2<f32>,
     time: f32,
     energy: f32,
 }
@@ -15,7 +14,7 @@ pub struct BrainOutputs {
 }
 
 pub trait BrainInput {
-    fn to_input(self) -> DVector<f32>;
+    fn to_input(self) -> Vector2<f32>;
 }
 
 pub trait BrainOutput {
@@ -24,7 +23,7 @@ pub trait BrainOutput {
 
 // write derive macros for both BrainInput and BrainOutput
 
-// this will generate something like this:
+// this should be generated
 impl BrainInput for BrainInputs {
     fn to_input(self) -> DVector<f32> {
         let mut output = DVector::new();
@@ -35,12 +34,21 @@ impl BrainInput for BrainInputs {
     }
 }
 
+// this should generated
 impl BrainOutput for BrainOutputs {
     fn from_output(output: DVector<f32>) -> Self {
         Self {
-            force: [f32; 2]::from_output(&output[0..2]),
-            will_to_reproduce: bool::from_output(&output[2..3])
+            // maybe use fixed_rows
+            force: Vector2::from_output(output.rows(0, 2)),
+            will_to_reproduce: bool::from_output(output.rows(2, 2)),
         }
+    }
+}
+
+impl< BrainInput for bool {
+    fn to_input(self) -> DVector<f32> {
+        let output = self as u32 as f32;
+        DVector::from_element(1, output)
     }
 }
 

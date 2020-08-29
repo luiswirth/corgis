@@ -1,13 +1,15 @@
 use crate::{genes::Genes, neural_network::NeuralNetwork};
 use amethyst::ecs::prelude::*;
+use nalgebra::Vector2;
 
 pub struct Corgi {
     pub name: String,
     pub color: [f32; 4],
     pub energy: f32,
 
-    pub velocity: [f32; 2],
-    pub force: [f32; 2],
+    pub mass: f32,
+    pub velocity: Vector2<f32>,
+    pub force: Vector2<f32>,
 
     pub genes: Genes,
     pub brain: CorgiBrain,

@@ -1,6 +1,4 @@
-use crate::{
-    corgi::{Corgi, CorgiBrain},
-};
+use crate::corgi::{Corgi, CorgiBrain};
 
 use crate::neural_network::NeuralNetwork;
 use amethyst::{
@@ -9,7 +7,8 @@ use amethyst::{
     ecs::prelude::{Entities, Join, ReadExpect, System, WriteStorage},
     renderer::{SpriteRender, SpriteSheet},
 };
-use rand::{thread_rng};
+use na::Vector2;
+use rand::thread_rng;
 
 pub struct ReproduceSystem;
 
@@ -46,8 +45,9 @@ impl<'s> System<'s> for ReproduceSystem {
                         color: [1.0, 0.0, 0.0, 1.0],
                         energy: 50.0,
 
-                        velocity: [0.0, 0.0],
-                        force: [0.0, 0.0],
+                        mass: 1.0,
+                        velocity: Vector2::from_element(0.0),
+                        force: Vector2::from_element(0.0),
 
                         genes: genes.clone(),
 

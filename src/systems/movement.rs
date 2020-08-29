@@ -21,8 +21,8 @@ impl<'s> System<'s> for MovementSystem {
     fn run(&mut self, (mut corgis, mut locals, time): Self::SystemData) {
         // Move every ball according to its speed, and the time passed.
         for (corgi, transform) in (&mut corgis, &mut locals).join() {
-            corgi.velocity[0] += corgi.force[0];
-            corgi.velocity[1] += corgi.force[1];
+            corgi.velocity[0] += corgi.force[0] / corgi.mass;
+            corgi.velocity[1] += corgi.force[1] / corgi.mass;
 
             // friction
             corgi.velocity[0] *= 0.95;

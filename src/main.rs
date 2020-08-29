@@ -1,12 +1,12 @@
-//! Pong
-
+//mod brain;
 mod bundle;
 mod corgi;
 mod genes;
 mod neural_network;
 mod systems;
 mod universe;
-mod brain;
+
+extern crate nalgebra as na;
 
 use amethyst::{
     core::{frame_limiter::FrameRateLimitStrategy, transform::TransformBundle},

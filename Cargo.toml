@@ -14,7 +14,7 @@ amethyst = "0.15.3"
 
 #nphysics2d
 
-nalgebra = "0.21.1"
+nalgebra = "0.22.0"
 rand_distr = "0.3.0"
 rand = "0.7.3"
 
