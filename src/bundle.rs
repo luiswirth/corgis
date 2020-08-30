@@ -15,8 +15,8 @@ impl<'a, 'b> SystemBundle<'a, 'b> for CorgiBundle {
         _world: &mut World,
         builder: &mut DispatcherBuilder<'a, 'b>,
     ) -> Result<(), Error> {
-        builder.add(SpawnerSystem::new(), "spawn_system", &[]);
-        builder.add(BrainSystem, "brain_system", &[]);
+        builder.add(SpawnerSystem, "spawn_system", &[]);
+        builder.add(BrainSystem::default(), "brain_system", &[]);
         builder.add(ReproduceSystem, "reproduction_system", &["brain_system"]);
         builder.add(MovementSystem, "move_system", &["brain_system"]);
         Ok(())

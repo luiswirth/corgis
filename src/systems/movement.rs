@@ -6,8 +6,8 @@ use amethyst::{
     ecs::prelude::{Join, Read, System, SystemData, WriteStorage},
 };
 
-/// This system is responsible for moving all balls according to their speed
-/// and the time passed.
+const FRICTION: f32 = 0.97;
+
 #[derive(SystemDesc)]
 pub struct MovementSystem;
 
@@ -19,20 +19,15 @@ impl<'s> System<'s> for MovementSystem {
     );
 
     fn run(&mut self, (mut corgis, mut locals, time): Self::SystemData) {
-        // Move every ball according to its speed, and the time passed.
         for (corgi, transform) in (&mut corgis, &mut locals).join() {
-            corgi.velocity[0] += corgi.force[0] / corgi.mass;
-            corgi.velocity[1] += corgi.force[1] / corgi.mass;
+            corgi.velocity += corgi.force / corgi.mass;
 
             // friction
-            corgi.velocity[0] *= 0.95;
-            corgi.velocity[1] *= 0.95;
-            let distance = [
-                corgi.velocity[0] * time.delta_seconds(),
-                corgi.velocity[1] * time.delta_seconds(),
-            ];
-            let movement_work = [distance[0] * corgi.force[0], distance[1] * corgi.force[1]];
-            let movement_work = (movement_work[0].powf(2.0) + movement_work[1].powf(2.0)).sqrt();
+            corgi.velocity *= FRICTION;
+
+            let distance = corgi.velocity * time.delta_seconds();
+            let mut movement_work = distance.dot(&corgi.force);
+            movement_work *= Corgi::MOVEMENT_WORK;
 
             let life_work = 0.05;
 
@@ -45,20 +40,16 @@ impl<'s> System<'s> for MovementSystem {
             corgi.force[1] = 0.0;
 
             if transform.translation().x < 0.0 {
-                transform.translation_mut().x = 0.0;
-                corgi.velocity[0] *= -1.0;
+                transform.translation_mut().x = Universe::WIDTH;
             }
             if transform.translation().y < 0.0 {
-                transform.translation_mut().y = 0.0;
-                corgi.velocity[1] *= -1.0;
-            }
-            if transform.translation().x >= Universe::WIDTH {
-                transform.translation_mut().x = Universe::WIDTH;
-                corgi.velocity[0] *= -1.0;
-            }
-            if transform.translation().y >= Universe::HEIGHT {
                 transform.translation_mut().y = Universe::HEIGHT;
-                corgi.velocity[1] *= -1.0;
+            }
+            if transform.translation().x > Universe::WIDTH {
+                transform.translation_mut().x = 0.0;
+            }
+            if transform.translation().y > Universe::HEIGHT {
+                transform.translation_mut().y = 0.0;
             }
         }
     }

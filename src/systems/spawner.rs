@@ -1,41 +1,45 @@
-use crate::{brain::Brain, corgi::Corgi, genes::Genes, universe::Universe, util::types::Color};
+use crate::{brain::Brain, corgi::Corgi, genes::Genes, universe::Universe};
 
-use crate::neural_network::NeuralNetwork;
+use crate::universe::Values;
 use amethyst::{
     assets::Handle,
     core::transform::Transform,
-    ecs::prelude::{Entities, Join, ReadExpect, System, WriteStorage},
-    renderer::{SpriteRender, SpriteSheet},
+    ecs::prelude::{Entities, Join, ReadExpect, System, WriteExpect, WriteStorage},
+    renderer::{palette::Hsv, resources::Tint, SpriteRender, SpriteSheet},
 };
 use na::Vector2;
 use rand::{thread_rng, Rng};
 
-pub struct SpawnerSystem {
-    counter: u32,
-}
+const MIN_COGI_COUNT: u32 = 10000;
 
-impl SpawnerSystem {
-    pub fn new() -> Self {
-        Self { counter: 0 }
-    }
-}
+pub struct SpawnerSystem;
 
 impl<'s> System<'s> for SpawnerSystem {
     type SystemData = (
         WriteStorage<'s, Transform>,
         WriteStorage<'s, Corgi>,
         WriteStorage<'s, SpriteRender>,
+        WriteStorage<'s, Tint>,
         Entities<'s>,
         ReadExpect<'s, Handle<SpriteSheet>>,
+        WriteExpect<'s, Values>,
     );
 
     fn run(
         &mut self,
-        (mut transforms, mut corgis, mut sprite_renderers, entities, sprite_sheet): Self::SystemData,
+        (
+            mut transforms,
+            mut corgis,
+            _sprite_renderers,
+            mut tints,
+            entities,
+            sprite_sheet,
+            mut values,
+        ): Self::SystemData,
     ) {
         for (e, corgi) in (&*entities, &corgis).join() {
             if corgi.energy < 0.0 {
-                self.counter -= 1;
+                values.corgi_count -= 1;
                 entities.delete(e).unwrap();
             }
         }
@@ -43,11 +47,11 @@ impl<'s> System<'s> for SpawnerSystem {
         let mut local_transform = Transform::default();
         local_transform.set_translation_xyz(Universe::WIDTH / 2.0, Universe::HEIGHT / 2.0, 0.0);
 
-        let sprite_render = SpriteRender::new(sprite_sheet.clone(), 1);
+        let _sprite_render = SpriteRender::new(sprite_sheet.clone(), 1);
 
         let mut rng = thread_rng();
 
-        for _ in self.counter..50 {
+        for _ in values.corgi_count..MIN_COGI_COUNT {
             let genes = Genes::random(&mut rng);
 
             entities
@@ -68,14 +72,15 @@ impl<'s> System<'s> for SpawnerSystem {
 
                         brain: Brain::new(genes.brain.clone()),
 
-                        color: Color::new(0.0, 0.0, 0.0),
+                        color: Hsv::new(0.0, 0.0, 0.0),
                         reproduction_will: false,
                     },
                     &mut corgis,
                 )
-                .with(sprite_render.clone(), &mut sprite_renderers)
+                //.with(sprite_render.clone(), &mut sprite_renderers)
+                .with(Tint(Hsv::new(1.0, 1.0, 1.0).into()), &mut tints)
                 .build();
         }
-        self.counter = 50;
+        values.corgi_count = u32::max(values.corgi_count, MIN_COGI_COUNT);
     }
 }

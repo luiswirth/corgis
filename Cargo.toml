@@ -10,7 +10,7 @@ edition = "2018"
 proc-macro = true
 
 [dependencies]
-amethyst = "0.15.3"
+amethyst = { version = "0.15.3", features = ["tiles"] }
 
 #nphysics2d
 

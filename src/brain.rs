@@ -1,21 +1,25 @@
 use crate::{corgi::Corgi, genes::BrainGene, neural_network::NeuralNetwork};
-use amethyst::core::Time;
+use amethyst::renderer::palette::Hsv;
 use na::{DVector, Vector2};
 
 pub struct Brain {
     neural_network: NeuralNetwork,
+    pub memory: Option<Memory>,
 }
 
 //#[derive(BrainInput)]
 pub struct Perception {
     body: BodyPerception,
     environment: EnvironmentPerception,
+    memory: Option<Memory>,
 }
 
 //#[derive(BrainOutput)]
 pub struct Decisions {
     pub force: Vector2<f32>,
     pub reproduction_will: bool,
+    pub color: Hsv,
+    pub memory: Memory,
 }
 
 //#[derive(BrainInput)]
@@ -27,8 +31,10 @@ pub struct BodyPerception {
 //#[derive(BrainInput)]
 pub struct EnvironmentPerception {
     velocity: Vector2<f32>,
-    time: f32,
 }
+
+#[derive(Debug, Clone)]
+pub struct Memory(pub [f32; 5]);
 
 pub trait BrainInput {
     fn len() -> usize;
@@ -44,6 +50,7 @@ impl Brain {
     pub fn new(gene: BrainGene) -> Self {
         Self {
             neural_network: NeuralNetwork::new(gene),
+            memory: None,
         }
     }
 
@@ -53,7 +60,7 @@ impl Brain {
 }
 
 impl Perception {
-    pub fn collect(corgi: &Corgi, time: &Time) -> Self {
+    pub fn collect(corgi: &mut Corgi) -> Self {
         Self {
             body: BodyPerception {
                 energy: corgi.energy,
@@ -61,8 +68,8 @@ impl Perception {
             },
             environment: EnvironmentPerception {
                 velocity: corgi.velocity,
-                time: time.absolute_time().as_secs_f32(),
             },
+            memory: corgi.brain.memory.take(),
         }
     }
 }
@@ -73,16 +80,31 @@ impl Perception {
 // this should be generated
 impl BrainInput for Perception {
     fn len() -> usize {
-        BodyPerception::len() + EnvironmentPerception::len()
+        BodyPerception::len() + EnvironmentPerception::len() + 5
     }
 
     fn to_input(self) -> DVector<f32> {
         let body = self.body.to_input();
         let environment = self.environment.to_input();
-        DVector::from_iterator(
-            Self::len(),
-            body.into_iter().chain(environment.into_iter()).cloned(),
-        )
+        if let Some(memory) = self.memory {
+            let memory = memory.to_input();
+            DVector::from_iterator(
+                Self::len(),
+                body.into_iter()
+                    .chain(environment.into_iter())
+                    .chain(memory.into_iter())
+                    .cloned(),
+            )
+        } else {
+            let memory = [0.0; 5];
+            DVector::from_iterator(
+                Self::len(),
+                body.into_iter()
+                    .chain(environment.into_iter())
+                    .chain(memory.iter())
+                    .cloned(),
+            )
+        }
     }
 }
 
@@ -104,29 +126,27 @@ impl BrainInput for BodyPerception {
 impl BrainInput for EnvironmentPerception {
     fn len() -> usize {
         //Vector2::len() + f32::len()
-        2 + 1
+        2
     }
 
     fn to_input(self) -> DVector<f32> {
         let velocity = self.velocity.to_input();
-        let time = self.time.to_input();
-        DVector::from_iterator(
-            Self::len(),
-            velocity.into_iter().chain(time.into_iter()).cloned(),
-        )
+        DVector::from_iterator(Self::len(), velocity.into_iter().cloned())
     }
 }
 
 // this should generated
 impl BrainOutput for Decisions {
     fn len() -> usize {
-        3
+        6 + 5
     }
 
     fn from_output(output: DVector<f32>) -> Self {
         Self {
             force: Vector2::from_output(output.rows(0, 2).into_owned()),
             reproduction_will: bool::from_output(output.rows(2, 1).into_owned()),
+            color: Hsv::from_output(output.rows(3, 3).into_owned()),
+            memory: Memory::from_output(output.rows(6, 5).into_owned()),
         }
     }
 }
@@ -164,6 +184,16 @@ impl BrainInput for Vector2<f32> {
     }
 }
 
+impl BrainInput for Memory {
+    fn len() -> usize {
+        5
+    }
+
+    fn to_input(self) -> DVector<f32> {
+        DVector::from_iterator(5, self.0.iter().cloned())
+    }
+}
+
 impl BrainOutput for bool {
     fn len() -> usize {
         1
@@ -181,6 +211,27 @@ impl BrainOutput for Vector2<f32> {
     }
 
     fn from_output(output: DVector<f32>) -> Self {
-        Self::from_iterator(output.iter().cloned())
+        Self::new(output[0] * 2.0 - 1.0, output[1] * 2.0 - 1.0)
+    }
+}
+
+impl BrainOutput for Hsv {
+    fn len() -> usize {
+        3
+    }
+
+    fn from_output(output: DVector<f32>) -> Self {
+        //Hsv::new(output[0] * 360.0 - 180.0, output[1], output[2])
+        Hsv::new(output[0] * 360.0 - 180.0, 1.0, 1.0)
+    }
+}
+
+impl BrainOutput for Memory {
+    fn len() -> usize {
+        5
+    }
+
+    fn from_output(output: DVector<f32>) -> Self {
+        Memory([output[0], output[1], output[2], output[3], output[4]])
     }
 }
