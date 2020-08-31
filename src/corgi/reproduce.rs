@@ -87,5 +87,7 @@ impl<'s> System<'s> for ReproduceSystem {
                 values.corgi_count += 1;
             }
         }
+
+        println!("{}", values.corgi_count);
     }
 }

@@ -1,6 +1,21 @@
-use crate::{corgi::Corgi, genes::BrainGene, neural_network::NeuralNetwork};
+pub mod neural_network;
+pub mod system;
+
+use crate::{brain::neural_network::NeuralNetwork, corgi::Corgi, genes::BrainGene};
 use amethyst::renderer::palette::Hsv;
 use na::{DVector, Vector2};
+
+// traits
+pub trait BrainInput {
+    fn len() -> usize;
+    fn to_input(self) -> DVector<f32>;
+}
+
+// brain structs
+pub trait BrainOutput {
+    fn len() -> usize;
+    fn from_output(output: DVector<f32>) -> Self;
+}
 
 pub struct Brain {
     neural_network: NeuralNetwork,
@@ -35,16 +50,6 @@ pub struct EnvironmentPerception {
 
 #[derive(Debug, Clone)]
 pub struct Memory(pub [f32; 5]);
-
-pub trait BrainInput {
-    fn len() -> usize;
-    fn to_input(self) -> DVector<f32>;
-}
-
-pub trait BrainOutput {
-    fn len() -> usize;
-    fn from_output(output: DVector<f32>) -> Self;
-}
 
 impl Brain {
     pub fn new(gene: BrainGene) -> Self {

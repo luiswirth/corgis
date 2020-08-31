@@ -1,6 +1,5 @@
-use na::DVector;
-
 use crate::genes::BrainGene;
+use na::DVector;
 
 pub struct NeuralNetwork {
     // get rid of owned copy and replace it with a reference &BrainGene

@@ -1,4 +1,5 @@
-use crate::tile::{Tile, TileType};
+pub mod tile;
+
 use amethyst::{
     assets::{AssetStorage, Handle, Loader},
     core::{timing::Time, transform::Transform},
@@ -10,6 +11,7 @@ use amethyst::{
     },
 };
 use na::Point2;
+use tile::{Tile, TileType};
 
 #[derive(Default)]
 pub struct Universe {

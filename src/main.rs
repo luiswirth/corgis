@@ -1,15 +1,13 @@
 pub mod brain;
-pub mod bundle;
+pub mod core;
 pub mod corgi;
 pub mod genes;
-pub mod neural_network;
-pub mod systems;
-pub mod tile;
 pub mod universe;
 pub mod util;
 
 extern crate nalgebra as na;
 
+use crate::{core::bundle::CorgiBundle, universe::Universe};
 use amethyst::{
     core::{frame_limiter::FrameRateLimitStrategy, transform::TransformBundle},
     input::{InputBundle, StringBindings},
@@ -22,12 +20,8 @@ use amethyst::{
     utils::application_root_dir,
 };
 
-use crate::bundle::CorgiBundle;
-
 fn main() -> amethyst::Result<()> {
     amethyst::start_logger(Default::default());
-
-    use crate::universe::Universe;
 
     let app_root = application_root_dir()?;
 

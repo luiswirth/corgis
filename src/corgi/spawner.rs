@@ -1,6 +1,9 @@
-use crate::{brain::Brain, corgi::Corgi, genes::Genes, universe::Universe};
-
-use crate::universe::Values;
+use crate::{
+    brain::Brain,
+    corgi::Corgi,
+    genes::Genes,
+    universe::{Universe, Values},
+};
 use amethyst::{
     assets::Handle,
     core::transform::Transform,
@@ -30,7 +33,7 @@ impl<'s> System<'s> for SpawnerSystem {
         (
             mut transforms,
             mut corgis,
-            _sprite_renderers,
+            mut sprite_renderers,
             mut tints,
             entities,
             sprite_sheet,
@@ -47,7 +50,7 @@ impl<'s> System<'s> for SpawnerSystem {
         let mut local_transform = Transform::default();
         local_transform.set_translation_xyz(Universe::WIDTH / 2.0, Universe::HEIGHT / 2.0, 0.0);
 
-        let _sprite_render = SpriteRender::new(sprite_sheet.clone(), 1);
+        let sprite_render = SpriteRender::new(sprite_sheet.clone(), 1);
 
         let mut rng = thread_rng();
 
@@ -77,7 +80,7 @@ impl<'s> System<'s> for SpawnerSystem {
                     },
                     &mut corgis,
                 )
-                //.with(sprite_render.clone(), &mut sprite_renderers)
+                .with(sprite_render.clone(), &mut sprite_renderers)
                 .with(Tint(Hsv::new(1.0, 1.0, 1.0).into()), &mut tints)
                 .build();
         }

@@ -1,3 +1,7 @@
+pub mod movement;
+pub mod reproduce;
+pub mod spawner;
+
 use crate::{brain::Brain, genes::Genes};
 use amethyst::{ecs::prelude::*, renderer::palette::Hsv};
 use nalgebra::Vector2;

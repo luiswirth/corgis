@@ -1,5 +1,5 @@
-use amethyst::core::math::Point3;
 use amethyst::{
+    core::math::Point3,
     ecs::{Component, DenseVecStorage, World},
     tiles,
 };

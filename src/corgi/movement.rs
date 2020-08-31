@@ -1,5 +1,4 @@
-use crate::corgi::Corgi;
-use crate::universe::Universe;
+use crate::{corgi::Corgi, universe::Universe};
 use amethyst::{
     core::{timing::Time, transform::Transform},
     derive::SystemDesc,

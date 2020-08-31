@@ -1,4 +1,7 @@
-use crate::systems::*;
+use crate::{
+    brain::system::BrainSystem,
+    corgi::{movement::MovementSystem, reproduce::ReproduceSystem, spawner::SpawnerSystem},
+};
 use amethyst::{
     core::bundle::SystemBundle,
     ecs::prelude::{DispatcherBuilder, World},
