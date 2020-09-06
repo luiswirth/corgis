@@ -4,13 +4,13 @@ use rand::{distributions::Uniform, Rng};
 use rand_distr::Normal;
 
 #[derive(Debug, Clone)]
-pub struct Genes {
+pub struct Genome {
     pub mutation: MutationGene,
     pub brain: BrainGene,
     pub color: ColorGene,
 }
 
-impl Genes {
+impl Genome {
     pub fn random(rng: &mut impl Rng) -> Self {
         Self {
             mutation: MutationGene::random(rng),

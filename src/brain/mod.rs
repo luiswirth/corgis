@@ -11,12 +11,12 @@ pub trait BrainInput {
     fn to_input(self) -> DVector<f32>;
 }
 
-// brain structs
 pub trait BrainOutput {
     fn len() -> usize;
     fn from_output(output: DVector<f32>) -> Self;
 }
 
+// brain structs
 pub struct Brain {
     neural_network: NeuralNetwork,
     pub memory: Option<Memory>,

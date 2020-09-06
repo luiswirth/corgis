@@ -1,7 +1,7 @@
 use crate::{
     brain::Brain,
     corgi::Corgi,
-    genes::Genes,
+    genes::Genome,
     universe::{Universe, Values},
 };
 use amethyst::{
@@ -55,7 +55,7 @@ impl<'s> System<'s> for SpawnerSystem {
         let mut rng = thread_rng();
 
         for _ in values.corgi_count..MIN_COGI_COUNT {
-            let genes = Genes::random(&mut rng);
+            let genes = Genome::random(&mut rng);
 
             entities
                 .build_entity()

@@ -2,7 +2,7 @@ pub mod movement;
 pub mod reproduce;
 pub mod spawner;
 
-use crate::{brain::Brain, genes::Genes};
+use crate::{brain::Brain, genes::Genome};
 use amethyst::{ecs::prelude::*, renderer::palette::Hsv};
 use nalgebra::Vector2;
 
@@ -16,7 +16,7 @@ pub struct Corgi {
     pub velocity: Vector2<f32>,
     pub force: Vector2<f32>,
 
-    pub genes: Genes,
+    pub genes: Genome,
     pub brain: Brain,
 
     pub color: Hsv,
