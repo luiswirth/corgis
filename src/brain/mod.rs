@@ -11,7 +11,7 @@ pub trait BrainInput {
 
 // traits
 pub trait BrainOutput {
-    fn from_output(output: Vec<f32>) -> Self;
+    fn from_output(output: &mut Vec<f32>) -> Self;
 }
 
 // brain structs
@@ -58,7 +58,13 @@ impl Brain {
     }
 
     pub fn think(&self, perception: Perception) -> Decisions {
-        Decisions::from_output(self.neural_network.feed(DVector::from_iterator(perception)))
+        Decisions::from_output(
+            self.neural_network
+                .feed(DVector::from_vec(perception.to_input()))
+                .iter()
+                .cloned()
+                .collect(),
+        )
     }
 }
 
@@ -85,8 +91,8 @@ impl BrainInput for Perception {
     fn to_input(self) -> Vec<f32> {
         self.body
             .to_input()
-            .append(self.environment.to_input())
-            .append(self.memory.to_input())
+            .append(&mut self.environment.to_input())
+            .append(&mut self.memory.to_input())
     }
 }
 
@@ -142,29 +148,15 @@ impl BrainInput for InputVector2 {
     }
 }
 
-struct InputHsv(Hsv);
-impl BrainOutput for InputHsv {
+struct OutputHsv(Hsv);
+impl BrainOutput for OutputHsv {
     fn from_output(output: Vec<f32>) -> Self {
-        Hsv::new(output[0] * 360.0 - 180.0, 1.0, 1.0)
-    }
-}
-
-impl BrainOutput for Hsv {
-    fn len() -> usize {
-        3
-    }
-
-    fn from_output(output: DVector<f32>) -> Self {
-        //Hsv::new(output[0] * 360.0 - 180.0, output[1], output[2])
+        OutputHsv(Hsv::new(output[0] * 360.0 - 180.0, 1.0, 1.0))
     }
 }
 
 impl BrainOutput for Memory {
-    fn len() -> usize {
-        5
-    }
-
-    fn from_output(output: DVector<f32>) -> Self {
+    fn from_output(output: Vec<f32>) -> Self {
         Memory([output[0], output[1], output[2], output[3], output[4]])
     }
 }
