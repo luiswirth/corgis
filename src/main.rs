@@ -1,3 +1,5 @@
+#![allow(clippy::type_complexity)]
+
 pub mod brain;
 pub mod core;
 pub mod corgi;

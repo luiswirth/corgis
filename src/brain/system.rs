@@ -30,10 +30,10 @@ impl<'s> System<'s> for BrainSystem {
             let perception = Perception::collect(corgi);
             let decisions = corgi.brain.think(perception);
 
-            corgi.force += decisions.force;
-            corgi.reproduction_will = decisions.reproduction_will;
-            corgi.color = decisions.color;
-            corgi.brain.memory = Some(decisions.memory);
+            corgi.force += decisions.force.0;
+            corgi.reproduction_will = decisions.reproduction_will.0;
+            corgi.color = decisions.color.0;
+            corgi.brain.memory = decisions.memory;
             *tint = Tint(corgi.color.into());
 
             //println!("{:#?}", corgi.brain.memory.clone().unwrap().0);
