@@ -1,3 +1,4 @@
+use crate::na::Vector2;
 use crate::{brain::Brain, corgi::Corgi, universe::Values};
 use amethyst::{
     assets::Handle,
@@ -5,7 +6,6 @@ use amethyst::{
     ecs::prelude::{Entities, Join, ReadExpect, System, WriteExpect, WriteStorage},
     renderer::{palette::Hsv, resources::Tint, SpriteRender, SpriteSheet},
 };
-use na::Vector2;
 use rand::{thread_rng, Rng};
 
 pub struct ReproduceSystem;

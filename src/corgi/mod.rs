@@ -2,9 +2,9 @@ pub mod movement;
 pub mod reproduce;
 pub mod spawner;
 
+use crate::na::Vector2;
 use crate::{brain::Brain, genes::Genome};
 use amethyst::{ecs::prelude::*, renderer::palette::Hsv};
-use nalgebra::Vector2;
 
 pub struct Corgi {
     pub uuid: u128,

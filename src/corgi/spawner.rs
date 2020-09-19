@@ -1,3 +1,4 @@
+use crate::na::Vector2;
 use crate::{
     brain::Brain,
     corgi::Corgi,
@@ -10,10 +11,10 @@ use amethyst::{
     ecs::prelude::{Entities, Join, ReadExpect, System, WriteExpect, WriteStorage},
     renderer::{palette::Hsv, resources::Tint, SpriteRender, SpriteSheet},
 };
-use na::Vector2;
 use rand::{thread_rng, Rng};
+use rand_distr::{Distribution, Uniform};
 
-const MIN_COGI_COUNT: u32 = 10000;
+const MIN_COGI_COUNT: u32 = 10;
 
 pub struct SpawnerSystem;
 
@@ -47,15 +48,21 @@ impl<'s> System<'s> for SpawnerSystem {
             }
         }
 
-        let mut local_transform = Transform::default();
-        local_transform.set_translation_xyz(Universe::WIDTH / 2.0, Universe::HEIGHT / 2.0, 0.0);
-
         let sprite_render = SpriteRender::new(sprite_sheet.clone(), 1);
 
         let mut rng = thread_rng();
+        let x_pos_distr = Uniform::new(0.0, Universe::WIDTH);
+        let y_pos_distr = Uniform::new(0.0, Universe::HEIGHT);
 
         for _ in values.corgi_count..MIN_COGI_COUNT {
             let genes = Genome::random(&mut rng);
+
+            let mut local_transform = Transform::default();
+            local_transform.set_translation_xyz(
+                x_pos_distr.sample(&mut rng),
+                y_pos_distr.sample(&mut rng),
+                0.0,
+            );
 
             entities
                 .build_entity()

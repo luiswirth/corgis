@@ -12,21 +12,19 @@ proc-macro = true
 [dependencies]
 amethyst = { version = "0.15.3", features = ["tiles"] }
 
-#nphysics2d
-
-nalgebra = "0.22.0"
-rand_distr = "0.3.0"
 rand = "0.7.3"
+rand_distr = "0.3.0"
+
+proc-macro2 = "1.0.21"
+syn = "1.0.41"
+quote = "1.0.7"
 
 log = "0.4.11"
 
-proc-macro2 = "1.0.21"
-syn = "1.0.40"
-quote = "1.0.7"
-
+#nphysics2d
 
 [features]
-default = ["vulkan"]
+default = ["metal"]
 vulkan = ["amethyst/vulkan"]
 metal = ["amethyst/metal"]
 #empty = ["amethyst/empty"]

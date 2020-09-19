@@ -2,6 +2,7 @@ pub mod tile;
 
 use amethyst::{
     assets::{AssetStorage, Handle, Loader},
+    controls::FlyControlTag,
     core::{timing::Time, transform::Transform},
     ecs::prelude::*,
     prelude::*,
@@ -10,8 +11,6 @@ use amethyst::{
         Camera, ImageFormat, SpriteSheet, SpriteSheetFormat, Texture,
     },
 };
-use na::Point2;
-use tile::{Tile, TileType};
 
 #[derive(Default)]
 pub struct Universe {
@@ -24,11 +23,9 @@ pub struct Values {
     pub epsilon: f32,
 }
 
-pub struct Tiles(pub Vec<Entity>);
-
 impl Universe {
-    pub const WIDTH: f32 = 3840.0 / 10.0;
-    pub const HEIGHT: f32 = 2160.0 / 10.0;
+    pub const WIDTH: f32 = 100.0;
+    pub const HEIGHT: f32 = 100.0;
 }
 
 impl SimpleState for Universe {
@@ -43,7 +40,7 @@ impl SimpleState for Universe {
             color: Hsv::new(0.0, 1.0, 1.0),
             epsilon: 0.5,
         });
-        //create_tiles(world);
+        tile::create_tiles(world);
     }
 
     fn update(&mut self, data: &mut StateData<'_, GameData<'_, '_>>) -> SimpleTrans {
@@ -58,28 +55,6 @@ impl SimpleState for Universe {
 
         Trans::None
     }
-}
-
-#[allow(unused)]
-fn create_tiles(world: &mut World) {
-    let mut entities = Vec::new();
-    for y in 0..20 {
-        for x in 0..20 {
-            let tile = Tile {
-                position: Point2::new(x as f32 * Tile::SIZE, y as f32 * Tile::SIZE),
-                ttype: TileType::Energy(0.0),
-            };
-            let entity = world.create_entity().with(tile).build();
-            entities.push(entity);
-        }
-    }
-    world.insert(Tiles(entities));
-
-    //let map = TileMap::<Tile>::new(
-    //Vector3::new(10, 10, 1),
-    //Vector3::new(Tile::SIZE as u32, Tile::SIZE as u32, 1),
-    //Some((*world.read_resource::<Handle<SpriteSheet>>()).clone()),
-    //);
 }
 
 fn load_sprite_sheet(world: &mut World) -> Handle<SpriteSheet> {
@@ -104,13 +79,16 @@ fn load_sprite_sheet(world: &mut World) -> Handle<SpriteSheet> {
     )
 }
 
+const CAMERA_ZOOM: f32 = 10.0;
+
 fn initialise_camera(world: &mut World) {
     let mut transform = Transform::default();
     transform.set_translation_xyz(Universe::WIDTH * 0.5, Universe::HEIGHT * 0.5, 1.0);
 
     world
         .create_entity()
-        .with(Camera::standard_2d(Universe::WIDTH, Universe::HEIGHT))
+        .with(Camera::standard_2d(16.0 * CAMERA_ZOOM, 9.0 * CAMERA_ZOOM))
+        .with(FlyControlTag)
         .with(transform)
         .build();
 }

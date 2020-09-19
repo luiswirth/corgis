@@ -1,5 +1,5 @@
 use crate::brain::{BrainInput, BrainOutput, Decisions, Perception};
-use na::{DMatrix, DVector};
+use crate::na::{DMatrix, DVector};
 use rand::{distributions::Uniform, Rng};
 use rand_distr::Normal;
 
