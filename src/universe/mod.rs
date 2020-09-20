@@ -1,3 +1,4 @@
+pub mod energy;
 pub mod tile;
 
 use amethyst::{

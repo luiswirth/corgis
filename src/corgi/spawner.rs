@@ -88,7 +88,7 @@ impl<'s> System<'s> for SpawnerSystem {
                     &mut corgis,
                 )
                 .with(sprite_render.clone(), &mut sprite_renderers)
-                .with(Tint(Hsv::new(1.0, 1.0, 1.0).into()), &mut tints)
+                .with(Tint(Hsv::new(0.0, 1.0, 1.0).into()), &mut tints)
                 .build();
         }
         values.corgi_count = u32::max(values.corgi_count, MIN_COGI_COUNT);

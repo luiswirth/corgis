@@ -1,6 +1,7 @@
 use crate::{
     brain::system::BrainSystem,
     corgi::{movement::MovementSystem, reproduce::ReproduceSystem, spawner::SpawnerSystem},
+    universe::{energy::EnergySystem, tile::TileSystem},
 };
 use amethyst::{
     core::bundle::SystemBundle,
@@ -22,6 +23,8 @@ impl<'a, 'b> SystemBundle<'a, 'b> for CorgiBundle {
         builder.add(BrainSystem::default(), "brain_system", &[]);
         builder.add(ReproduceSystem, "reproduction_system", &["brain_system"]);
         builder.add(MovementSystem, "move_system", &["brain_system"]);
+        builder.add(TileSystem, "tile_system", &[]);
+        builder.add(EnergySystem, "energy_system", &[]);
         Ok(())
     }
 }
