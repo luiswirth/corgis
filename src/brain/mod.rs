@@ -1,8 +1,12 @@
 pub mod neural_network;
 pub mod system;
 
-use crate::na::{DVector, Vector2};
-use crate::{brain::neural_network::NeuralNetwork, corgi::Corgi, genes::BrainGene};
+use crate::{
+    brain::neural_network::NeuralNetwork,
+    corgi::Corgi,
+    genes::BrainGene,
+    na::{DVector, Vector2},
+};
 use amethyst::renderer::palette::Hsv;
 
 pub struct Brain {

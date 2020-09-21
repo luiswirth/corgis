@@ -5,7 +5,10 @@ use amethyst::{
 
 use crate::corgi::Corgi;
 
-use super::tile::{Tile, TileType, Tiles};
+use super::{
+    tile::{Tile, TileType, Tiles},
+    Universe,
+};
 
 pub struct EnergySystem;
 
@@ -19,8 +22,10 @@ impl<'s> System<'s> for EnergySystem {
 
     fn run(&mut self, (transforms, mut corgis, mut tiles, tile_array): Self::SystemData) {
         for (transform, corgi) in (&transforms, &mut corgis).join() {
-            let tile_x = (transform.translation().x / Tile::SIZE).floor() as u32;
-            let tile_y = (transform.translation().y / Tile::SIZE).floor() as u32;
+            let corgi_x = transform.translation().x - (Universe::WIDTH / 2.0 + Tile::SIZE / 2.0);
+            let corgi_y = transform.translation().y - (Universe::HEIGHT / 2.0 - Tile::SIZE / 2.0);
+            let tile_x = (corgi_x / Tile::SIZE).floor() as u32;
+            let tile_y = (corgi_y / Tile::SIZE).floor() as u32;
             if !(0..Tile::MAP_WIDTH).contains(&tile_x) || !(0..Tile::MAP_HEIGHT).contains(&tile_y) {
                 continue;
             }

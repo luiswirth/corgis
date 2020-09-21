@@ -25,8 +25,8 @@ pub struct Values {
 }
 
 impl Universe {
-    pub const WIDTH: f32 = 100.0;
-    pub const HEIGHT: f32 = 100.0;
+    pub const WIDTH: f32 = 1000.0;
+    pub const HEIGHT: f32 = 1000.0;
 }
 
 impl SimpleState for Universe {
@@ -80,7 +80,7 @@ fn load_sprite_sheet(world: &mut World) -> Handle<SpriteSheet> {
     )
 }
 
-const CAMERA_ZOOM: f32 = 10.0;
+const CAMERA_ZOOM: f32 = 50.0;
 
 fn initialise_camera(world: &mut World) {
     let mut transform = Transform::default();

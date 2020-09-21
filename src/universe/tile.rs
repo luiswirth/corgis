@@ -1,16 +1,19 @@
 use amethyst::{
     assets::Handle,
-    core::math::Point3,
-    core::math::Vector3,
-    core::Transform,
-    ecs::prelude::{Join, System, WriteStorage},
-    ecs::Entity,
-    ecs::{Component, DenseVecStorage, World},
-    prelude::Builder,
-    prelude::WorldExt,
-    renderer::palette::Hsl,
-    renderer::palette::Srgba,
-    renderer::{resources::Tint, SpriteSheet},
+    core::{
+        math::{Point3, Vector3},
+        Transform,
+    },
+    ecs::{
+        prelude::{ParJoin, ParallelIterator, System, WriteStorage},
+        Component, DenseVecStorage, Entity, World,
+    },
+    prelude::{Builder, WorldExt},
+    renderer::{
+        palette::{Hsl, Srgba},
+        resources::Tint,
+        SpriteSheet,
+    },
     tiles,
 };
 use rand::{thread_rng, Rng};
@@ -54,10 +57,6 @@ impl tiles::Tile for Tile {
         let tile = tile_array[(coord.x + coord.y * (Tile::MAP_WIDTH)) as usize];
         let tiles = world.read_storage::<Tile>();
         let tile = tiles.get(tile).unwrap();
-        println!(
-            "SpriteTile: {:?}, Acctual Tile: {:?}",
-            self.ttype, tile.ttype
-        );
         match tile.ttype {
             Neutral => Srgba::new(1.0, 1.0, 1.0, 1.0),
             Energy(_) => Srgba::new(1.0, 0.0, 0.0, 1.0),
@@ -121,12 +120,12 @@ impl<'s> System<'s> for TileSystem {
     type SystemData = WriteStorage<'s, Tile>;
 
     fn run(&mut self, mut tiles: Self::SystemData) {
-        let mut rng = thread_rng();
-        for tile in (&mut tiles).join() {
+        (&mut tiles).par_join().for_each(|tile| {
+            let mut rng = thread_rng();
             let is_energy = rng.gen_bool(0.001);
             if is_energy {
                 tile.ttype = TileType::Energy(100.0);
             }
-        }
+        });
     }
 }

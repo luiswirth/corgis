@@ -1,5 +1,4 @@
-use crate::na::Vector2;
-use crate::{brain::Brain, corgi::Corgi, universe::Values};
+use crate::{brain::Brain, corgi::Corgi, na::Vector2, universe::Values};
 use amethyst::{
     assets::Handle,
     core::transform::Transform,

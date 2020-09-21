@@ -1,8 +1,8 @@
-use crate::na::Vector2;
 use crate::{
     brain::Brain,
     corgi::Corgi,
     genes::Genome,
+    na::Vector2,
     universe::{Universe, Values},
 };
 use amethyst::{
@@ -14,7 +14,7 @@ use amethyst::{
 use rand::{thread_rng, Rng};
 use rand_distr::{Distribution, Uniform};
 
-const MIN_COGI_COUNT: u32 = 10;
+const MIN_COGI_COUNT: u32 = 10_000;
 
 pub struct SpawnerSystem;
 
