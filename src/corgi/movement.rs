@@ -2,7 +2,7 @@ use crate::{corgi::Corgi, universe::Universe};
 use amethyst::{
     core::{timing::Time, transform::Transform},
     derive::SystemDesc,
-    ecs::prelude::{Join, Read, System, SystemData, WriteStorage},
+    ecs::prelude::{Join, ParJoin, ParallelIterator, Read, System, SystemData, WriteStorage},
 };
 
 const FRICTION: f32 = 0.97;
@@ -35,21 +35,23 @@ impl<'s> System<'s> for MovementSystem {
             transform.prepend_translation_x(distance[0]);
             transform.prepend_translation_y(distance[1]);
 
-            corgi.force[0] = 0.0;
-            corgi.force[1] = 0.0;
+            corgi.force.x = 0.0;
+            corgi.force.y = 0.0;
 
             if transform.translation().x < 0.0 {
-                transform.translation_mut().x = Universe::WIDTH;
+                transform.translation_mut().x = Universe::WIDTH_PIXEL;
             }
             if transform.translation().y < 0.0 {
-                transform.translation_mut().y = Universe::HEIGHT;
+                transform.translation_mut().y = Universe::HEIGHT_PIXEL;
             }
-            if transform.translation().x > Universe::WIDTH {
+            if transform.translation().x > Universe::WIDTH_PIXEL {
                 transform.translation_mut().x = 0.0;
             }
-            if transform.translation().y > Universe::HEIGHT {
+            if transform.translation().y > Universe::HEIGHT_PIXEL {
                 transform.translation_mut().y = 0.0;
             }
+
+            corgi.age += 1;
         }
     }
 }

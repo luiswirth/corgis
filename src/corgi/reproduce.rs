@@ -11,6 +11,8 @@ pub struct ReproduceSystem;
 
 impl ReproduceSystem {}
 
+const MATURITY_AGE: u32 = 1_000;
+
 impl<'s> System<'s> for ReproduceSystem {
     type SystemData = (
         WriteStorage<'s, Transform>,
@@ -40,7 +42,10 @@ impl<'s> System<'s> for ReproduceSystem {
         let mut new_corgis: Vec<(Corgi, Transform)> = Vec::new();
 
         for (mut corgi, transform) in (&mut corgis, &transforms).join() {
-            if corgi.reproduction_will && corgi.energy >= Corgi::REPRODUCTION_WORK {
+            if corgi.age >= MATURITY_AGE
+                && corgi.reproduction_will
+                && corgi.energy >= Corgi::REPRODUCTION_WORK
+            {
                 let mut genes = corgi.genes.clone();
                 genes.mutate(&mut rng);
 
@@ -49,6 +54,7 @@ impl<'s> System<'s> for ReproduceSystem {
                         uuid: rng.gen(),
                         name: String::from("SomeCorgi"),
                         generation: corgi.generation + 1,
+                        age: 0,
 
                         energy: Corgi::BORN_ENERGY,
                         mass: 1.0,
@@ -75,16 +81,12 @@ impl<'s> System<'s> for ReproduceSystem {
             let mut ent = entities
                 .build_entity()
                 .with(c, &mut corgis)
+                .with(sprite_render.clone(), &mut sprite_renderers)
                 .with(t, &mut transforms)
                 .with(Tint(Hsv::new(1.0, 1.0, 1.0).into()), &mut tints);
 
-            if generation >= 3 {
-                ent = ent.with(sprite_render.clone(), &mut sprite_renderers);
-            }
-            if values.corgi_count < 30_000 {
-                ent.build();
-                values.corgi_count += 1;
-            }
+            ent.build();
+            values.corgi_count += 1;
         }
 
         println!("{}", values.corgi_count);

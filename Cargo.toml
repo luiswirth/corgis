@@ -24,7 +24,7 @@ log = "0.4.11"
 #nphysics2d
 
 [features]
-default = ["metal"]
+default = ["vulkan"]
 vulkan = ["amethyst/vulkan"]
 metal = ["amethyst/metal"]
 #empty = ["amethyst/empty"]

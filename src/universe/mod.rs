@@ -12,6 +12,7 @@ use amethyst::{
         Camera, ImageFormat, SpriteSheet, SpriteSheetFormat, Texture,
     },
 };
+use tile::Tile;
 
 #[derive(Default)]
 pub struct Universe {
@@ -25,8 +26,11 @@ pub struct Values {
 }
 
 impl Universe {
-    pub const WIDTH: f32 = 1000.0;
-    pub const HEIGHT: f32 = 1000.0;
+    pub const WIDTH_TILE: u32 = 50;
+    pub const HEIGHT_TILE: u32 = 30;
+
+    pub const WIDTH_PIXEL: f32 = Universe::WIDTH_TILE as f32 * Tile::SIZE;
+    pub const HEIGHT_PIXEL: f32 = Universe::HEIGHT_TILE as f32 * Tile::SIZE;
 }
 
 impl SimpleState for Universe {
@@ -84,7 +88,11 @@ const CAMERA_ZOOM: f32 = 50.0;
 
 fn initialise_camera(world: &mut World) {
     let mut transform = Transform::default();
-    transform.set_translation_xyz(Universe::WIDTH * 0.5, Universe::HEIGHT * 0.5, 1.0);
+    transform.set_translation_xyz(
+        Universe::WIDTH_PIXEL * 0.5,
+        Universe::HEIGHT_PIXEL * 0.5,
+        1.0,
+    );
 
     world
         .create_entity()

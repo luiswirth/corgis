@@ -21,20 +21,35 @@ impl<'s> System<'s> for EnergySystem {
     );
 
     fn run(&mut self, (transforms, mut corgis, mut tiles, tile_array): Self::SystemData) {
+        let mut counter = 0;
         for (transform, corgi) in (&transforms, &mut corgis).join() {
-            let corgi_x = transform.translation().x - (Universe::WIDTH / 2.0 + Tile::SIZE / 2.0);
-            let corgi_y = transform.translation().y - (Universe::HEIGHT / 2.0 - Tile::SIZE / 2.0);
+            let corgi_x = transform.translation().x; // - (Universe::WIDTH / 2.0 + Tile::SIZE / 2.0);
+            let corgi_y = transform.translation().y; // - (Universe::HEIGHT / 2.0 - Tile::SIZE / 2.0);
             let tile_x = (corgi_x / Tile::SIZE).floor() as u32;
-            let tile_y = (corgi_y / Tile::SIZE).floor() as u32;
-            if !(0..Tile::MAP_WIDTH).contains(&tile_x) || !(0..Tile::MAP_HEIGHT).contains(&tile_y) {
+            let tile_y = Tile::MAP_WIDTH - (corgi_y / Tile::SIZE).ceil() as u32;
+            let tile_index = (tile_x + tile_y * Tile::MAP_WIDTH) as usize;
+
+            let tile = if let Some(tile) = tile_array.0.get(tile_index) {
+                tile
+            } else {
+                counter += 1;
                 continue;
+            };
+
+            let tile = tiles.get_mut(*tile).expect("tiles should never be deleted");
+            if counter == 0 {
+                tile.ttype = TileType::Blue;
             }
-            let tile = tile_array.0[(tile_x + tile_y * (Tile::MAP_WIDTH)) as usize];
-            let tile = tiles.get_mut(tile).expect("tiles should never be deleted");
-            if let TileType::Energy(tile_energy) = tile.ttype {
-                corgi.energy += tile_energy;
-                tile.ttype = TileType::Neutral;
+            if counter % 2 == 0 && TileType::Red == tile.ttype {
+                corgi.energy += 1.0;
             }
+            if counter == 1 {
+                tile.ttype = TileType::Red;
+            }
+            if counter % 2 == 1 && TileType::Blue == tile.ttype {
+                corgi.energy += 1.0;
+            }
+            counter += 1;
         }
     }
 }

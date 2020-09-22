@@ -7,14 +7,14 @@ use crate::{
 };
 use amethyst::{
     assets::Handle,
-    core::transform::Transform,
+    core::{math::Vector3, transform::Transform},
     ecs::prelude::{Entities, Join, ReadExpect, System, WriteExpect, WriteStorage},
     renderer::{palette::Hsv, resources::Tint, SpriteRender, SpriteSheet},
 };
 use rand::{thread_rng, Rng};
 use rand_distr::{Distribution, Uniform};
 
-const MIN_COGI_COUNT: u32 = 10_000;
+const MIN_CORGI_COUNT: u32 = 2;
 
 pub struct SpawnerSystem;
 
@@ -51,13 +51,14 @@ impl<'s> System<'s> for SpawnerSystem {
         let sprite_render = SpriteRender::new(sprite_sheet.clone(), 1);
 
         let mut rng = thread_rng();
-        let x_pos_distr = Uniform::new(0.0, Universe::WIDTH);
-        let y_pos_distr = Uniform::new(0.0, Universe::HEIGHT);
+        let x_pos_distr = Uniform::new(0.0, Universe::WIDTH_PIXEL);
+        let y_pos_distr = Uniform::new(0.0, Universe::HEIGHT_PIXEL);
 
-        for _ in values.corgi_count..MIN_COGI_COUNT {
+        for _ in values.corgi_count..MIN_CORGI_COUNT {
             let genes = Genome::random(&mut rng);
 
             let mut local_transform = Transform::default();
+            local_transform.set_scale(Vector3::new(2.0, 2.0, 2.0));
             local_transform.set_translation_xyz(
                 x_pos_distr.sample(&mut rng),
                 y_pos_distr.sample(&mut rng),
@@ -72,6 +73,7 @@ impl<'s> System<'s> for SpawnerSystem {
                         uuid: rng.gen(),
                         name: String::from("SomeCorgi"),
                         generation: 0,
+                        age: 0,
 
                         energy: Corgi::INITAL_ENERGY,
                         mass: 1.0,
@@ -91,6 +93,6 @@ impl<'s> System<'s> for SpawnerSystem {
                 .with(Tint(Hsv::new(0.0, 1.0, 1.0).into()), &mut tints)
                 .build();
         }
-        values.corgi_count = u32::max(values.corgi_count, MIN_COGI_COUNT);
+        values.corgi_count = u32::max(values.corgi_count, MIN_CORGI_COUNT);
     }
 }

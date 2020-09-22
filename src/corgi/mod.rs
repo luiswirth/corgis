@@ -9,6 +9,7 @@ pub struct Corgi {
     pub uuid: u128,
     pub name: String,
     pub generation: u32,
+    pub age: u32,
 
     pub energy: f32,
     pub mass: f32,
@@ -25,7 +26,7 @@ pub struct Corgi {
 impl Corgi {
     pub const INITAL_ENERGY: f32 = 200.0;
     pub const BORN_ENERGY: f32 = 50.0;
-    pub const REPRODUCTION_WORK: f32 = 100.0;
+    pub const REPRODUCTION_WORK: f32 = 300.0;
 
     pub const LIFE_WORK: f32 = 100.0;
     pub const MOVEMENT_WORK: f32 = 0.8;

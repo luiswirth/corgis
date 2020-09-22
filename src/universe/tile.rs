@@ -17,7 +17,7 @@ use amethyst::{
     tiles,
 };
 use rand::{thread_rng, Rng};
-use tiles::TileMap;
+use tiles::{FlatEncoder, TileMap};
 
 use super::Universe;
 
@@ -29,9 +29,9 @@ pub struct Tile {
 }
 
 impl Tile {
-    pub const SIZE: f32 = 10.0;
-    pub const MAP_WIDTH: u32 = (Universe::WIDTH / Tile::SIZE) as u32;
-    pub const MAP_HEIGHT: u32 = (Universe::HEIGHT / Tile::SIZE) as u32;
+    pub const SIZE: f32 = 20.0;
+    pub const MAP_WIDTH: u32 = Universe::WIDTH_TILE;
+    pub const MAP_HEIGHT: u32 = Universe::HEIGHT_TILE;
 }
 
 impl Default for Tile {
@@ -59,7 +59,8 @@ impl tiles::Tile for Tile {
         let tile = tiles.get(tile).unwrap();
         match tile.ttype {
             Neutral => Srgba::new(1.0, 1.0, 1.0, 1.0),
-            Energy(_) => Srgba::new(1.0, 0.0, 0.0, 1.0),
+            Blue => Srgba::new(0.0, 0.0, 1.0, 1.0),
+            Red => Srgba::new(1.0, 0.0, 0.0, 1.0),
         }
     }
 }
@@ -67,7 +68,8 @@ impl tiles::Tile for Tile {
 #[derive(Debug, Clone, PartialEq)]
 pub enum TileType {
     Neutral,
-    Energy(f32),
+    Blue,
+    Red,
 }
 
 impl Default for TileType {
@@ -89,26 +91,21 @@ pub fn create_tiles(world: &mut World) {
             let mut transform = Transform::default();
             transform.set_translation_xyz(x as f32 * Tile::SIZE, y as f32 * Tile::SIZE, 0.0);
 
-            let entity = world
-                .create_entity()
-                .with(tile)
-                .with(transform)
-                .with(Tint(Hsl::new(1.0, 1.0, 1.0).into()))
-                .build();
+            let entity = world.create_entity().with(tile).with(transform).build();
             entities.push(entity);
         }
     }
     world.insert(Tiles(entities));
 
-    let map = TileMap::<Tile>::new(
+    let map = TileMap::<Tile, FlatEncoder>::new(
         Vector3::new(Tile::MAP_WIDTH, Tile::MAP_HEIGHT, 1),
         Vector3::new(Tile::SIZE as u32, Tile::SIZE as u32, 1),
         Some((*world.read_resource::<Handle<SpriteSheet>>()).clone()),
     );
     let mut map_transform = Transform::default();
     map_transform.set_translation_xyz(
-        Universe::WIDTH / 2.0 + Tile::SIZE / 2.0,
-        Universe::HEIGHT / 2.0 - Tile::SIZE / 2.0,
+        Universe::WIDTH_PIXEL / 2.0 + Tile::SIZE / 2.0,
+        Universe::HEIGHT_PIXEL / 2.0 - Tile::SIZE / 2.0,
         0.0,
     );
     world.create_entity().with(map).with(map_transform).build();
@@ -120,12 +117,12 @@ impl<'s> System<'s> for TileSystem {
     type SystemData = WriteStorage<'s, Tile>;
 
     fn run(&mut self, mut tiles: Self::SystemData) {
-        (&mut tiles).par_join().for_each(|tile| {
-            let mut rng = thread_rng();
-            let is_energy = rng.gen_bool(0.001);
-            if is_energy {
-                tile.ttype = TileType::Energy(100.0);
-            }
-        });
+        //(&mut tiles).par_join().for_each(|tile| {
+        //    let mut rng = thread_rng();
+        //    let is_energy = rng.gen_bool(0.001);
+        //    if is_energy {
+        //        tile.ttype = TileType::Energy(100.0);
+        //    }
+        //});
     }
 }
