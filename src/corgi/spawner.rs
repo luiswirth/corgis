@@ -14,7 +14,7 @@ use amethyst::{
 use rand::{thread_rng, Rng};
 use rand_distr::{Distribution, Uniform};
 
-const MIN_CORGI_COUNT: u32 = 2;
+const MIN_CORGI_COUNT: u32 = 100;
 
 pub struct SpawnerSystem;
 

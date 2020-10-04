@@ -21,8 +21,6 @@ pub struct Universe {
 
 pub struct Values {
     pub corgi_count: u32,
-    pub color: Hsv,
-    pub epsilon: f32,
 }
 
 impl Universe {
@@ -40,23 +38,13 @@ impl SimpleState for Universe {
         initialise_camera(world);
         let sprite_sheet = load_sprite_sheet(world);
         world.insert(sprite_sheet);
-        world.insert(Values {
-            corgi_count: 0,
-            color: Hsv::new(0.0, 1.0, 1.0),
-            epsilon: 0.5,
-        });
+        world.insert(Values { corgi_count: 0 });
         tile::create_tiles(world);
     }
 
     fn update(&mut self, data: &mut StateData<'_, GameData<'_, '_>>) -> SimpleTrans {
         let StateData { world, .. } = data;
         let _time = world.fetch::<Time>();
-
-        let Values { ref mut color, .. } = *world.fetch_mut::<Values>();
-        color.hue = color.hue + 0.5;
-        if color.hue.to_degrees() > 180.0 {
-            color.hue = RgbHue::from_degrees(-180.0)
-        }
 
         Trans::None
     }
@@ -84,7 +72,7 @@ fn load_sprite_sheet(world: &mut World) -> Handle<SpriteSheet> {
     )
 }
 
-const CAMERA_ZOOM: f32 = 50.0;
+const CAMERA_ZOOM: f32 = 75.0;
 
 fn initialise_camera(world: &mut World) {
     let mut transform = Transform::default();

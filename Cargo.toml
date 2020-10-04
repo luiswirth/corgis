@@ -15,8 +15,8 @@ amethyst = { version = "0.15.3", features = ["tiles"] }
 rand = "0.7.3"
 rand_distr = "0.3.0"
 
-proc-macro2 = "1.0.21"
-syn = "1.0.41"
+proc-macro2 = "1.0.24"
+syn = "1.0.42"
 quote = "1.0.7"
 
 log = "0.4.11"

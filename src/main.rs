@@ -21,9 +21,9 @@ use amethyst::{
         types::DefaultBackend,
         RenderingBundle,
     },
-    tiles::RenderTiles2D,
     utils::application_root_dir,
 };
+use std::time::Duration;
 
 fn main() -> amethyst::Result<()> {
     amethyst::start_logger(Default::default());
@@ -54,15 +54,13 @@ fn main() -> amethyst::Result<()> {
                     RenderToWindow::from_config_path(display_config_path)?
                         .with_clear([0.0, 0.0, 0.0, 1.0]),
                 )
-                .with_plugin(RenderFlat2D::default())
-                .with_plugin(RenderTiles2D::<Tile>::default()),
+                .with_plugin(RenderFlat2D::default()), //.with_plugin(RenderTiles2D::<Tile>::default()),
         )?
         .with_bundle(CorgiBundle)?;
 
     let mut game = Application::build(assets_dir, Universe::default())?
         .with_frame_limit(
-            //FrameRateLimitStrategy::SleepAndYield(Duration::from_millis(2)),
-            FrameRateLimitStrategy::Unlimited,
+            FrameRateLimitStrategy::SleepAndYield(Duration::from_millis(2)),
             144,
         )
         .build(game_data)?;

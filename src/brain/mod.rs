@@ -11,7 +11,7 @@ use amethyst::renderer::palette::Hsv;
 
 pub struct Brain {
     neural_network: NeuralNetwork,
-    pub memory: Memory,
+    pub(self) memory: Option<Memory>,
 }
 
 pub trait BrainInput {
@@ -51,7 +51,7 @@ pub struct EnvironmentPerception {
 }
 
 #[derive(Debug, Clone)]
-pub struct Memory(pub Option<[f32; Memory::SIZE]>);
+pub struct Memory(pub [f32; Memory::SIZE]);
 
 impl Memory {
     const SIZE: usize = 5;
@@ -61,7 +61,7 @@ impl Brain {
     pub fn new(gene: BrainGene) -> Self {
         Self {
             neural_network: NeuralNetwork::new(gene),
-            memory: Memory(None),
+            memory: None,
         }
     }
 
@@ -73,22 +73,6 @@ impl Brain {
                 .cloned()
                 .collect(),
         )
-    }
-}
-
-impl Perception {
-    pub fn collect(corgi: &mut Corgi) -> Self {
-        let memory = corgi.brain.memory.0.take();
-        Self {
-            body: BodyPerception {
-                energy: IoF32(corgi.energy),
-                mass: IoF32(corgi.mass),
-            },
-            environment: EnvironmentPerception {
-                velocity: IoVector2(corgi.velocity),
-            },
-            memory: Memory(memory),
-        }
     }
 }
 
@@ -223,7 +207,7 @@ impl BrainInput for Memory {
     }
 
     fn to_input(self) -> Vec<f32> {
-        self.0.unwrap_or([0.0; Self::SIZE]).into()
+        self.0.into()
     }
 }
 impl BrainOutput for Memory {
@@ -231,8 +215,6 @@ impl BrainOutput for Memory {
         Self::SIZE
     }
     fn from_output(output: Vec<f32>) -> Self {
-        Self(Some([
-            output[0], output[1], output[2], output[3], output[4],
-        ]))
+        Self([output[0], output[1], output[2], output[3], output[4]])
     }
 }
