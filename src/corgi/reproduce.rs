@@ -76,9 +76,9 @@ impl<'s> System<'s> for ReproduceSystem {
         }
 
         for (c, t) in new_corgis {
-            let generation = c.generation;
+            let _generation = c.generation;
 
-            let mut ent = entities
+            let ent = entities
                 .build_entity()
                 .with(c, &mut corgis)
                 .with(sprite_render.clone(), &mut sprite_renderers)

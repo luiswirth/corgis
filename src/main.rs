@@ -8,7 +8,6 @@ pub mod universe;
 pub mod util;
 
 pub use amethyst::core::math as na;
-use universe::tile::Tile;
 
 use crate::{core::bundle::CorgiBundle, universe::Universe};
 use amethyst::{

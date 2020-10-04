@@ -1,17 +1,14 @@
 use amethyst::{
     core::Transform,
     ecs::prelude::{
-        Entities, Join, ParJoin, ParallelIterator, ReadExpect, ReadStorage, System, WriteStorage,
+        Entities, ParJoin, ParallelIterator, ReadExpect, ReadStorage, System, WriteStorage,
     },
     renderer::resources::Tint,
 };
 
 use crate::corgi::Corgi;
 
-use super::{
-    tile::{Tile, TileEntities, TileType},
-    Universe,
-};
+use super::tile::{Tile, TileEntities};
 
 pub struct EnergySystem;
 
@@ -27,7 +24,7 @@ impl<'s> System<'s> for EnergySystem {
 
     fn run(
         &mut self,
-        (mut corgis, tiles, transforms, tints, tile_entities, entities): Self::SystemData,
+        (mut corgis, _tiles, transforms, tints, tile_entities, _entities): Self::SystemData,
     ) {
         (&mut corgis, &transforms, &tints)
             .par_join()

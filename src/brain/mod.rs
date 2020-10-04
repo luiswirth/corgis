@@ -3,7 +3,6 @@ pub mod system;
 
 use crate::{
     brain::neural_network::NeuralNetwork,
-    corgi::Corgi,
     genes::BrainGene,
     na::{DVector, Vector2},
 };

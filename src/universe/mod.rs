@@ -7,10 +7,7 @@ use amethyst::{
     core::{timing::Time, transform::Transform},
     ecs::prelude::*,
     prelude::*,
-    renderer::{
-        palette::{Hsv, RgbHue},
-        Camera, ImageFormat, SpriteSheet, SpriteSheetFormat, Texture,
-    },
+    renderer::{Camera, ImageFormat, SpriteSheet, SpriteSheetFormat, Texture},
 };
 use tile::Tile;
 

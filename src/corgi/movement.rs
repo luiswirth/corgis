@@ -2,7 +2,7 @@ use crate::{corgi::Corgi, universe::Universe};
 use amethyst::{
     core::{timing::Time, transform::Transform},
     derive::SystemDesc,
-    ecs::prelude::{Join, ParJoin, ParallelIterator, Read, System, SystemData, WriteStorage},
+    ecs::prelude::{Join, Read, System, SystemData, WriteStorage},
 };
 
 const FRICTION: f32 = 0.97;

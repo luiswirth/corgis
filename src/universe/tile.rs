@@ -1,24 +1,15 @@
 use amethyst::{
     assets::Handle,
-    core::{
-        math::{Point3, Vector3},
-        Transform,
-    },
+    core::{math::Vector3, Transform},
     ecs::{
         prelude::{ParJoin, ParallelIterator, System, WriteStorage},
         Component, DenseVecStorage, Entity, World,
     },
     prelude::{Builder, WorldExt},
-    renderer::{
-        palette::{Hsl, Srgba},
-        resources::Tint,
-        SpriteRender, SpriteSheet,
-    },
+    renderer::{palette::Srgba, resources::Tint, SpriteRender, SpriteSheet},
 };
-use rand::{thread_rng, Rng};
 
 use super::Universe;
-use amethyst::core::math::Vector2;
 
 pub struct TileEntities(pub Vec<Entity>);
 
@@ -106,10 +97,10 @@ impl<'s> System<'s> for TileSystem {
         WriteStorage<'s, Tint>,
     );
 
-    fn run(&mut self, (mut tiles, mut transforms, mut tints): Self::SystemData) {
+    fn run(&mut self, (tiles, transforms, mut tints): Self::SystemData) {
         (&tiles, &transforms, &mut tints)
             .par_join()
-            .for_each(|(tile, transform, tint)| {
+            .for_each(|(_tile, transform, tint)| {
                 let (x, y) = (
                     ((transform.translation().x - Tile::SIZE as f32 / 2.0) / Tile::SIZE as f32)
                         as u32,
@@ -118,7 +109,7 @@ impl<'s> System<'s> for TileSystem {
                 );
                 let r = x as f32 / Tile::MAP_WIDTH as f32;
                 let g = y as f32 / Tile::MAP_HEIGHT as f32;
-                tint.0 = Srgba::new(r, g, 1.0, 1.0);
+                //tint.0 = Srgba::new(r, g, 1.0, 1.0);
             });
     }
 }
