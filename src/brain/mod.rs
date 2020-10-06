@@ -6,7 +6,9 @@ use crate::{
     genes::BrainGene,
     na::{DVector, Vector2},
 };
-use amethyst::renderer::palette::Hsv;
+use amethyst::renderer::palette::{Hsv, RgbHue};
+
+// we could use na::Matrix::index(some_range, some_range) for slicing
 
 pub struct Brain {
     neural_network: NeuralNetwork,
@@ -47,6 +49,7 @@ pub struct BodyPerception {
 //#[derive(BrainInput)]
 pub struct EnvironmentPerception {
     velocity: IoVector2,
+    tile_color: IoHsv,
 }
 
 #[derive(Debug, Clone)]
@@ -106,11 +109,13 @@ impl BrainInput for BodyPerception {
 
 impl BrainInput for EnvironmentPerception {
     fn len() -> usize {
-        <IoVector2 as BrainInput>::len()
+        <IoVector2 as BrainInput>::len() + <IoHsv as BrainInput>::len()
     }
 
     fn to_input(self) -> Vec<f32> {
-        self.velocity.to_input()
+        let mut input = self.velocity.to_input();
+        input.append(&mut self.tile_color.to_input());
+        input
     }
 }
 
@@ -118,7 +123,7 @@ impl BrainOutput for Decisions {
     fn len() -> usize {
         <IoVector2 as BrainOutput>::len()
             + <IoBool as BrainOutput>::len()
-            + IoHsv::len()
+            + <IoHsv as BrainOutput>::len()
             + <Memory as BrainOutput>::len()
     }
 
@@ -191,12 +196,22 @@ impl BrainOutput for IoVector2 {
 }
 
 pub struct IoHsv(Hsv);
+impl BrainInput for IoHsv {
+    fn len() -> usize {
+        3
+    }
+    fn to_input(self) -> Vec<f32> {
+        vec![self.0.hue.to_radians(), self.0.saturation, self.0.value]
+    }
+}
 impl BrainOutput for IoHsv {
     fn len() -> usize {
         1
     }
     fn from_output(output: Vec<f32>) -> Self {
-        IoHsv(Hsv::new(output[0] * 360.0 - 180.0, 1.0, 1.0))
+        let hue =
+            RgbHue::from_radians(output[0] * 2.0 * std::f32::consts::PI - std::f32::consts::PI);
+        IoHsv(Hsv::new(hue, 1.0, 1.0))
     }
 }
 

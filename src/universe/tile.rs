@@ -1,10 +1,7 @@
 use amethyst::{
     assets::Handle,
-    core::{math::Vector3, Transform},
-    ecs::{
-        prelude::{ParJoin, ParallelIterator, System, WriteStorage},
-        Component, DenseVecStorage, Entity, World,
-    },
+    core::{math::Vector3, Time, Transform},
+    ecs::{prelude::*, Component, DenseVecStorage, Entity, World},
     prelude::{Builder, WorldExt},
     renderer::{palette::Srgba, resources::Tint, SpriteRender, SpriteSheet},
 };
@@ -95,9 +92,11 @@ impl<'s> System<'s> for TileSystem {
         WriteStorage<'s, Tile>,
         WriteStorage<'s, Transform>,
         WriteStorage<'s, Tint>,
+        ReadExpect<'s, Time>,
     );
 
-    fn run(&mut self, (tiles, transforms, mut tints): Self::SystemData) {
+    fn run(&mut self, (tiles, transforms, mut tints, time): Self::SystemData) {
+        log::error!("tile system");
         (&tiles, &transforms, &mut tints)
             .par_join()
             .for_each(|(_tile, transform, tint)| {
@@ -109,7 +108,8 @@ impl<'s> System<'s> for TileSystem {
                 );
                 let r = x as f32 / Tile::MAP_WIDTH as f32;
                 let g = y as f32 / Tile::MAP_HEIGHT as f32;
-                //tint.0 = Srgba::new(r, g, 1.0, 1.0);
+                let factor = (time.frame_number() % 2000) as f32 / 2000.0;
+                tint.0 = Srgba::new(r, g, factor as f32, 1.0);
             });
     }
 }

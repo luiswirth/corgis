@@ -59,8 +59,10 @@ fn main() -> amethyst::Result<()> {
 
     let mut game = Application::build(assets_dir, Universe::default())?
         .with_frame_limit(
-            FrameRateLimitStrategy::SleepAndYield(Duration::from_millis(2)),
-            144,
+            FrameRateLimitStrategy::Unlimited,
+            std::u32::MAX,
+            //FrameRateLimitStrategy::SleepAndYield(Duration::from_millis(2)),
+            //144
         )
         .build(game_data)?;
 

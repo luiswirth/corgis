@@ -26,6 +26,7 @@ impl<'s> System<'s> for EnergySystem {
         &mut self,
         (mut corgis, _tiles, transforms, tints, tile_entities, _entities): Self::SystemData,
     ) {
+        log::error!("energy system");
         (&mut corgis, &transforms, &tints)
             .par_join()
             .for_each(|(corgi, transform, corgi_tint)| {

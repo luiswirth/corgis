@@ -36,6 +36,7 @@ impl<'s> System<'s> for ReproduceSystem {
             mut values,
         ): Self::SystemData,
     ) {
+        log::error!("Reproduce System");
         let mut rng = thread_rng();
         let sprite_render = SpriteRender::new(sprite_sheet.clone(), 1);
 

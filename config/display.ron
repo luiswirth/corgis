@@ -4,6 +4,7 @@
 */
 
 (
-  dimensions: Some((1080, 720)),
   title: "Corgis",
+  dimensions: Some((1080, 720)),
+  vsync: false,
 )
