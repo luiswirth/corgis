@@ -31,7 +31,6 @@ impl<'s> System<'s> for BrainSystem {
         &mut self,
         (entities, mut corgis, transforms, mut tints, tile_entities): Self::SystemData,
     ) {
-        log::error!("Brain system");
         // collect perception
         let mut corgi_tile_colors: HashMap<Entity, Hsv> = HashMap::new();
         for (entity, corgi, transform) in (&entities, &mut corgis, &transforms).join() {

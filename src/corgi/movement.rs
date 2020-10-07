@@ -18,7 +18,6 @@ impl<'s> System<'s> for MovementSystem {
     );
 
     fn run(&mut self, (mut corgis, mut locals, time): Self::SystemData) {
-        log::error!("movement system");
         for (corgi, transform) in (&mut corgis, &mut locals).join() {
             corgi.velocity += corgi.force / corgi.mass;
 

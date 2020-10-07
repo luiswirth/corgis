@@ -81,13 +81,14 @@ impl Gene for BrainGene {
         let depth = rng
             .sample(Normal::new(Self::DEPTH_MEAN, Self::DEPTH_VARIANCE).unwrap())
             .round() as usize;
-        let mut shape = Vec::with_capacity(depth);
-        for _ in 1..depth - 1 {
+        let mut shape = Vec::with_capacity(depth + 2);
+        for _ in 0..depth {
             shape.push(
                 rng.sample(Normal::new(Self::WIDTH_MEAN, Self::WIDTH_VARIANCE).unwrap())
                     .round() as usize,
             );
         }
+        
         shape.insert(0, Perception::len());
         shape.push(Decisions::len());
 

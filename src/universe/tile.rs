@@ -96,7 +96,6 @@ impl<'s> System<'s> for TileSystem {
     );
 
     fn run(&mut self, (tiles, transforms, mut tints, time): Self::SystemData) {
-        log::error!("tile system");
         (&tiles, &transforms, &mut tints)
             .par_join()
             .for_each(|(_tile, transform, tint)| {

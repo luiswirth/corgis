@@ -41,7 +41,6 @@ impl<'s> System<'s> for SpawnerSystem {
             mut values,
         ): Self::SystemData,
     ) {
-        log::error!("Spawner system");
         for (e, corgi) in (&*entities, &corgis).join() {
             if corgi.energy < 0.0 {
                 values.corgi_count -= 1;
@@ -55,14 +54,8 @@ impl<'s> System<'s> for SpawnerSystem {
         let x_pos_distr = Uniform::new(0.0, Universe::WIDTH_PIXEL);
         let y_pos_distr = Uniform::new(0.0, Universe::HEIGHT_PIXEL);
 
-        log::error!(
-            "corgi count: {}, min count: {}",
-            values.corgi_count,
-            MIN_CORGI_COUNT
-        );
         for _ in values.corgi_count..MIN_CORGI_COUNT {
             let genes = Genome::random(&mut rng);
-            log::error!("genome generated");
 
             let mut local_transform = Transform::default();
             local_transform.set_scale(Vector3::new(2.0, 2.0, 2.0));
@@ -71,7 +64,6 @@ impl<'s> System<'s> for SpawnerSystem {
                 y_pos_distr.sample(&mut rng),
                 0.0,
             );
-            log::error!("transform generated");
 
             entities
                 .build_entity()
@@ -100,9 +92,7 @@ impl<'s> System<'s> for SpawnerSystem {
                 .with(sprite_render.clone(), &mut sprite_renderers)
                 .with(Tint(Hsv::new(0.0, 1.0, 1.0).into()), &mut tints)
                 .build();
-            log::error!("entity built");
         }
-        log::error!("corgis spawned");
         values.corgi_count = u32::max(values.corgi_count, MIN_CORGI_COUNT);
     }
 }
