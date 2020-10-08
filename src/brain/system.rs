@@ -32,7 +32,7 @@ impl<'s> System<'s> for BrainSystem {
         (entities, mut corgis, transforms, mut tints, tile_entities): Self::SystemData,
     ) {
         // collect perception
-        let corgi_tile_colors: DashMap<Entity, Hsv> = DashMap::new();
+        let corgi_tile_colors: DashMap<Entity, Hsl> = DashMap::new();
         (&entities, &corgis, &transforms)
             .par_join()
             .for_each(|(entity, _corgi, transform)| {
@@ -43,7 +43,7 @@ impl<'s> System<'s> for BrainSystem {
                 let tile_index = y * Tile::MAP_WIDTH + x;
                 if let Some(tile_entity) = tile_entities.0.get(tile_index as usize) {
                     if let Some(tile_tint) = tints.get(*tile_entity) {
-                        corgi_tile_colors.insert(entity, Hsv::from(tile_tint.0.color));
+                        corgi_tile_colors.insert(entity, Hsl::from(tile_tint.0.color));
                     }
                 }
             });
@@ -59,11 +59,11 @@ impl<'s> System<'s> for BrainSystem {
                     },
                     environment: EnvironmentPerception {
                         velocity: IoVector2(corgi.velocity),
-                        tile_color: IoHsv(
+                        tile_color: IoHsl(
                             corgi_tile_colors
                                 .get(&entity)
                                 .map(|r| *r)
-                                .unwrap_or(Hsv::new(0.0, 0.0, 0.0)),
+                                .unwrap_or(Hsl::new(0.0, 0.0, 0.0)),
                         ),
                     },
                     memory: corgi

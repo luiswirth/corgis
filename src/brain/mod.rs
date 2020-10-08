@@ -6,7 +6,7 @@ use crate::{
     genes::BrainGene,
     na::{DVector, Vector2},
 };
-use amethyst::renderer::palette::{Hsv, RgbHue};
+use amethyst::renderer::palette::{Hsl, RgbHue};
 
 // we could use na::Matrix::index(some_range, some_range) for slicing
 
@@ -36,7 +36,7 @@ pub struct Perception {
 pub struct Decisions {
     pub force: IoVector2,
     pub reproduction_will: IoBool,
-    pub color: IoHsv,
+    pub color: IoHsl,
     pub memory: Memory,
 }
 
@@ -49,7 +49,7 @@ pub struct BodyPerception {
 //#[derive(BrainInput)]
 pub struct EnvironmentPerception {
     velocity: IoVector2,
-    tile_color: IoHsv,
+    tile_color: IoHsl,
 }
 
 #[derive(Debug, Clone)]
@@ -109,7 +109,7 @@ impl BrainInput for BodyPerception {
 
 impl BrainInput for EnvironmentPerception {
     fn len() -> usize {
-        <IoVector2 as BrainInput>::len() + <IoHsv as BrainInput>::len()
+        <IoVector2 as BrainInput>::len() + <IoHsl as BrainInput>::len()
     }
 
     fn to_input(self) -> Vec<f32> {
@@ -123,7 +123,7 @@ impl BrainOutput for Decisions {
     fn len() -> usize {
         <IoVector2 as BrainOutput>::len()
             + <IoBool as BrainOutput>::len()
-            + <IoHsv as BrainOutput>::len()
+            + <IoHsl as BrainOutput>::len()
             + <Memory as BrainOutput>::len()
     }
 
@@ -131,7 +131,7 @@ impl BrainOutput for Decisions {
         Self {
             force: IoVector2::from_output(output[0..2].to_vec()),
             reproduction_will: IoBool::from_output(output[2..3].to_vec()),
-            color: IoHsv::from_output(output[3..4].to_vec()),
+            color: IoHsl::from_output(output[3..4].to_vec()),
             memory: Memory::from_output(output[4..9].to_vec()),
         }
     }
@@ -195,23 +195,23 @@ impl BrainOutput for IoVector2 {
     }
 }
 
-pub struct IoHsv(Hsv);
-impl BrainInput for IoHsv {
+pub struct IoHsl(Hsl);
+impl BrainInput for IoHsl {
     fn len() -> usize {
         3
     }
     fn to_input(self) -> Vec<f32> {
-        vec![self.0.hue.to_radians(), self.0.saturation, self.0.value]
+        vec![self.0.hue.to_radians(), self.0.saturation, self.0.lightness]
     }
 }
-impl BrainOutput for IoHsv {
+impl BrainOutput for IoHsl {
     fn len() -> usize {
         1
     }
     fn from_output(output: Vec<f32>) -> Self {
         let hue =
             RgbHue::from_radians(output[0] * 2.0 * std::f32::consts::PI - std::f32::consts::PI);
-        IoHsv(Hsv::new(hue, 1.0, 1.0))
+        IoHsl(Hsl::new(hue, 1.0, 0.5))
     }
 }
 

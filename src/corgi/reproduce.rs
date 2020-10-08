@@ -5,7 +5,7 @@ use amethyst::{
     assets::Handle,
     core::transform::Transform,
     ecs::prelude::*,
-    renderer::{palette::Hsv, resources::Tint, SpriteRender, SpriteSheet},
+    renderer::{palette::Hsl, resources::Tint, SpriteRender, SpriteSheet},
 };
 use rand::{thread_rng, Rng};
 
@@ -70,7 +70,7 @@ impl<'s> System<'s> for ReproduceSystem {
 
                         brain: Brain::new(genes.brain.clone()),
 
-                        color: Hsv::new(0.0, 0.0, 0.0),
+                        color: Hsl::new(0.0, 0.0, 0.0),
                         reproduction_will: false,
                     };
 
@@ -87,7 +87,7 @@ impl<'s> System<'s> for ReproduceSystem {
                 .with(corgi, &mut corgis)
                 .with(sprite_render.clone(), &mut sprite_renderers)
                 .with(transform, &mut transforms)
-                .with(Tint(Hsv::new(1.0, 1.0, 1.0).into()), &mut tints)
+                .with(Tint(Hsl::new(1.0, 1.0, 0.5).into()), &mut tints)
                 .build();
 
             values.corgi_count += 1;

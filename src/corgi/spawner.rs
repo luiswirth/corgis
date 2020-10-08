@@ -11,7 +11,7 @@ use amethyst::{
     assets::Handle,
     core::{math::Vector3, transform::Transform},
     ecs::prelude::*,
-    renderer::{palette::Hsv, resources::Tint, SpriteRender, SpriteSheet},
+    renderer::{palette::Hsl, resources::Tint, SpriteRender, SpriteSheet},
 };
 use rand::{thread_rng, Rng};
 use rand_distr::{Distribution, Uniform};
@@ -87,7 +87,7 @@ impl<'s> System<'s> for SpawnerSystem {
 
                     brain: Brain::new(genes.brain.clone()),
 
-                    color: Hsv::new(0.0, 0.0, 0.0),
+                    color: Hsl::new(0.0, 0.0, 0.0),
                     reproduction_will: false,
                 };
 
@@ -97,7 +97,7 @@ impl<'s> System<'s> for SpawnerSystem {
                     .with(corgi, &mut corgis.write().unwrap())
                     //.with(sprite_render.clone(), &mut sprite_renderers)
                     .with(
-                        Tint(Hsv::new(0.0, 1.0, 1.0).into()),
+                        Tint(Hsl::new(0.0, 1.0, 0.5).into()),
                         &mut tints.write().unwrap(),
                     )
                     .build();

@@ -1,10 +1,4 @@
-use amethyst::{
-    assets::Handle,
-    core::{math::Vector3, Time, Transform},
-    ecs::{prelude::*, Component, DenseVecStorage, Entity, World},
-    prelude::{Builder, WorldExt},
-    renderer::{palette::Srgba, resources::Tint, SpriteRender, SpriteSheet},
-};
+use amethyst::{assets::Handle, core::{math::Vector3, Time, Transform}, ecs::{prelude::*, Component, DenseVecStorage, Entity, World}, prelude::{Builder, WorldExt}, renderer::{SpriteRender, SpriteSheet, palette::Hsl, palette::Hue, palette::RgbHue, palette::Srgba, resources::Tint}};
 
 use super::Universe;
 
@@ -105,12 +99,11 @@ impl<'s> System<'s> for TileSystem {
                     ((transform.translation().y - Tile::SIZE as f32 / 2.0) / Tile::SIZE as f32)
                         as u32,
                 );
-                let r = x as f32 / Tile::MAP_WIDTH as f32;
-                let g = y as f32 / Tile::MAP_HEIGHT as f32;
-                let interval = 2000;
-                let fraction = (time.frame_number() % interval) as f32 / interval as f32;
-                let factor = (fraction * 2.0 - 1.0).abs();
-                tint.0 = Srgba::new(r, g, factor, 1.0);
+                let index_frac = (x + y) as f32 / (Tile::MAP_WIDTH + Tile::MAP_HEIGHT) as f32;
+                let frame_interval = 2000;
+                let time_frac = (time.frame_number() % frame_interval) as f32 / frame_interval as f32;
+                let hue = (index_frac - time_frac) * std::f32::consts::PI * 2.0;
+                tint.0 = Hsl::new(RgbHue::from_radians(hue), 1.0, 0.5).into();
             });
         println!(
             "average FPS: {}",

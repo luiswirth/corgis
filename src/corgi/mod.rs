@@ -5,7 +5,7 @@ pub mod spawner;
 use std::fmt::Debug;
 
 use crate::{brain::Brain, genes::Genome, na::Vector2};
-use amethyst::{ecs::prelude::*, renderer::palette::Hsv};
+use amethyst::{ecs::prelude::*, renderer::palette::Hsl};
 
 pub struct Corgi {
     pub uuid: u128,
@@ -21,7 +21,7 @@ pub struct Corgi {
     pub genes: Genome,
     pub brain: Brain,
 
-    pub color: Hsv,
+    pub color: Hsl,
     pub reproduction_will: bool,
 }
 

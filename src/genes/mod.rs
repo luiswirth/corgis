@@ -62,17 +62,17 @@ pub struct BrainGene {
 }
 
 impl BrainGene {
-    const DEPTH_MEAN: f32 = 5.0;
-    const DEPTH_VARIANCE: f32 = 1.0;
+    const DEPTH_MEAN: f32 = 2.0;
+    const DEPTH_VARIANCE: f32 = 2.0;
 
-    const WIDTH_MEAN: f32 = 10.0;
-    const WIDTH_VARIANCE: f32 = 2.0;
+    const WIDTH_MEAN: f32 = 5.0;
+    const WIDTH_VARIANCE: f32 = 4.0;
 
     const WEIGHT_MEAN: f32 = 0.0;
-    const WEIGHT_VARIANCE: f32 = 1.0;
+    const WEIGHT_VARIANCE: f32 = 5.0;
 
     const WEIGHT_MUTATION_MEAN: f32 = 0.0;
-    const WEIGHT_MUTATION_VARIANCE: f32 = 0.02;
+    const WEIGHT_MUTATION_VARIANCE: f32 = 0.1;
 }
 
 impl Gene for BrainGene {
