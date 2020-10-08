@@ -88,7 +88,7 @@ impl Gene for BrainGene {
                     .round() as usize,
             );
         }
-        
+
         shape.insert(0, Perception::len());
         shape.push(Decisions::len());
 

@@ -1,3 +1,5 @@
+use std::sync::{Arc, RwLock};
+
 use crate::{brain::Brain, corgi::Corgi, na::Vector2, universe::Values};
 use amethyst::{
     assets::Handle,

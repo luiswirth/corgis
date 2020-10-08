@@ -107,8 +107,10 @@ impl<'s> System<'s> for TileSystem {
                 );
                 let r = x as f32 / Tile::MAP_WIDTH as f32;
                 let g = y as f32 / Tile::MAP_HEIGHT as f32;
-                let factor = (time.frame_number() % 2000) as f32 / 2000.0;
-                tint.0 = Srgba::new(r, g, factor as f32, 1.0);
+                let interval = 2000;
+                let fraction = (time.frame_number() % interval) as f32 / interval as f32;
+                let factor = (fraction * 2.0 - 1.0).abs();
+                tint.0 = Srgba::new(r, g, factor, 1.0);
             });
     }
 }

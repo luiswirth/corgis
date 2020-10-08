@@ -8,7 +8,7 @@ use crate::{
 use amethyst::{
     assets::Handle,
     core::{math::Vector3, transform::Transform},
-    ecs::prelude::{Entities, Join, ReadExpect, System, WriteExpect, WriteStorage},
+    ecs::prelude::*,
     renderer::{palette::Hsv, resources::Tint, SpriteRender, SpriteSheet},
 };
 use rand::{thread_rng, Rng};
@@ -89,7 +89,7 @@ impl<'s> System<'s> for SpawnerSystem {
                     },
                     &mut corgis,
                 )
-                .with(sprite_render.clone(), &mut sprite_renderers)
+                //.with(sprite_render.clone(), &mut sprite_renderers)
                 .with(Tint(Hsv::new(0.0, 1.0, 1.0).into()), &mut tints)
                 .build();
         }

@@ -6,7 +6,7 @@ use crate::{
 use amethyst::{
     core::transform::Transform, derive::SystemDesc, ecs::prelude::*, renderer::resources::Tint,
 };
-use std::collections::HashMap;
+use dashmap::DashMap;
 
 // remove color stuff again
 #[derive(SystemDesc)]
@@ -32,19 +32,21 @@ impl<'s> System<'s> for BrainSystem {
         (entities, mut corgis, transforms, mut tints, tile_entities): Self::SystemData,
     ) {
         // collect perception
-        let mut corgi_tile_colors: HashMap<Entity, Hsv> = HashMap::new();
-        for (entity, corgi, transform) in (&entities, &mut corgis, &transforms).join() {
-            let (x, y) = (
-                (transform.translation().x / Tile::SIZE) as u32,
-                (transform.translation().y / Tile::SIZE) as u32,
-            );
-            let tile_index = y * Tile::MAP_WIDTH + x;
-            if let Some(tile_entity) = tile_entities.0.get(tile_index as usize) {
-                if let Some(tile_tint) = tints.get(*tile_entity) {
-                    corgi_tile_colors.insert(entity, Hsv::from(tile_tint.0.color));
+        let mut corgi_tile_colors: DashMap<Entity, Hsv> = DashMap::new();
+        (&entities, &mut corgis, &transforms)
+            .par_join()
+            .for_each(|(entity, corgi, transform)| {
+                let (x, y) = (
+                    (transform.translation().x / Tile::SIZE) as u32,
+                    (transform.translation().y / Tile::SIZE) as u32,
+                );
+                let tile_index = y * Tile::MAP_WIDTH + x;
+                if let Some(tile_entity) = tile_entities.0.get(tile_index as usize) {
+                    if let Some(tile_tint) = tints.get(*tile_entity) {
+                        corgi_tile_colors.insert(entity, Hsv::from(tile_tint.0.color));
+                    }
                 }
-            }
-        }
+            });
 
         (&entities, &mut corgis, &transforms, &mut tints)
             .par_join()
@@ -58,9 +60,10 @@ impl<'s> System<'s> for BrainSystem {
                     environment: EnvironmentPerception {
                         velocity: IoVector2(corgi.velocity),
                         tile_color: IoHsv(
-                            *corgi_tile_colors
+                            corgi_tile_colors
                                 .get(&entity)
-                                .unwrap_or(&Hsv::new(0.0, 0.0, 0.0)),
+                                .map(|r| *r)
+                                .unwrap_or(Hsv::new(0.0, 0.0, 0.0)),
                         ),
                     },
                     memory: corgi
