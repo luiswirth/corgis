@@ -910,6 +910,7 @@ dependencies = [
  "quote 1.0.7",
  "rand 0.7.3",
  "rand_distr 0.3.0",
+ "rayon",
  "syn 1.0.42",
 ]
 

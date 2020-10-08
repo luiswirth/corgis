@@ -2,6 +2,8 @@ pub mod movement;
 pub mod reproduce;
 pub mod spawner;
 
+use std::fmt::Debug;
+
 use crate::{brain::Brain, genes::Genome, na::Vector2};
 use amethyst::{ecs::prelude::*, renderer::palette::Hsv};
 
@@ -34,4 +36,10 @@ impl Corgi {
 
 impl Component for Corgi {
     type Storage = DenseVecStorage<Self>;
+}
+
+impl Debug for Corgi {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Corgi {{ uuid: {}}}", self.uuid)
+    }
 }

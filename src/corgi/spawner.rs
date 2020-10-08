@@ -1,3 +1,5 @@
+use std::sync::RwLock;
+
 use crate::{
     brain::Brain,
     corgi::Corgi,
@@ -13,8 +15,9 @@ use amethyst::{
 };
 use rand::{thread_rng, Rng};
 use rand_distr::{Distribution, Uniform};
+use rayon::prelude::*;
 
-const MIN_CORGI_COUNT: u32 = 10_000;
+const MIN_CORGI_COUNT: u32 = 25_000;
 
 pub struct SpawnerSystem;
 
@@ -32,12 +35,12 @@ impl<'s> System<'s> for SpawnerSystem {
     fn run(
         &mut self,
         (
-            mut transforms,
-            mut corgis,
-            mut sprite_renderers,
-            mut tints,
+            transforms,
+            corgis,
+            _sprite_renderers,
+            tints,
             entities,
-            sprite_sheet,
+            _sprite_sheet,
             mut values,
         ): Self::SystemData,
     ) {
@@ -48,51 +51,57 @@ impl<'s> System<'s> for SpawnerSystem {
             }
         }
 
-        let sprite_render = SpriteRender::new(sprite_sheet.clone(), 1);
-
-        let mut rng = thread_rng();
         let x_pos_distr = Uniform::new(0.0, Universe::WIDTH_PIXEL);
         let y_pos_distr = Uniform::new(0.0, Universe::HEIGHT_PIXEL);
 
-        for _ in values.corgi_count..MIN_CORGI_COUNT {
-            let genes = Genome::random(&mut rng);
+        let corgis = RwLock::new(corgis);
+        let transforms = RwLock::new(transforms);
+        let tints = RwLock::new(tints);
 
-            let mut local_transform = Transform::default();
-            local_transform.set_scale(Vector3::new(2.0, 2.0, 2.0));
-            local_transform.set_translation_xyz(
-                x_pos_distr.sample(&mut rng),
-                y_pos_distr.sample(&mut rng),
-                0.0,
-            );
+        (values.corgi_count..MIN_CORGI_COUNT)
+            .into_par_iter()
+            .for_each(|_| {
+                let mut rng = thread_rng();
 
-            entities
-                .build_entity()
-                .with(local_transform.clone(), &mut transforms)
-                .with(
-                    Corgi {
-                        uuid: rng.gen(),
-                        name: String::from("SomeCorgi"),
-                        generation: 0,
-                        age: 0,
+                let mut local_transform = Transform::default();
+                local_transform.set_scale(Vector3::new(2.0, 2.0, 2.0));
+                local_transform.set_translation_xyz(
+                    x_pos_distr.sample(&mut rng),
+                    y_pos_distr.sample(&mut rng),
+                    0.0,
+                );
 
-                        energy: Corgi::INITAL_ENERGY,
-                        mass: 1.0,
-                        velocity: Vector2::from_element(0.0),
-                        force: Vector2::from_element(0.0),
+                let genes = Genome::random(&mut rng);
+                let corgi = Corgi {
+                    uuid: rng.gen(),
+                    name: String::from("SomeCorgi"),
+                    generation: 0,
+                    age: 0,
 
-                        genes: genes.clone(),
+                    energy: Corgi::INITAL_ENERGY,
+                    mass: 1.0,
+                    velocity: Vector2::from_element(0.0),
+                    force: Vector2::from_element(0.0),
 
-                        brain: Brain::new(genes.brain.clone()),
+                    genes: genes.clone(),
 
-                        color: Hsv::new(0.0, 0.0, 0.0),
-                        reproduction_will: false,
-                    },
-                    &mut corgis,
-                )
-                //.with(sprite_render.clone(), &mut sprite_renderers)
-                .with(Tint(Hsv::new(0.0, 1.0, 1.0).into()), &mut tints)
-                .build();
-        }
+                    brain: Brain::new(genes.brain.clone()),
+
+                    color: Hsv::new(0.0, 0.0, 0.0),
+                    reproduction_will: false,
+                };
+
+                entities
+                    .build_entity()
+                    .with(local_transform.clone(), &mut transforms.write().unwrap())
+                    .with(corgi, &mut corgis.write().unwrap())
+                    //.with(sprite_render.clone(), &mut sprite_renderers)
+                    .with(
+                        Tint(Hsv::new(0.0, 1.0, 1.0).into()),
+                        &mut tints.write().unwrap(),
+                    )
+                    .build();
+            });
         values.corgi_count = u32::max(values.corgi_count, MIN_CORGI_COUNT);
     }
 }

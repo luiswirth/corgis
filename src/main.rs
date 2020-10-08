@@ -22,7 +22,6 @@ use amethyst::{
     },
     utils::application_root_dir,
 };
-use std::time::Duration;
 
 fn main() -> amethyst::Result<()> {
     amethyst::start_logger(Default::default());

@@ -112,5 +112,9 @@ impl<'s> System<'s> for TileSystem {
                 let factor = (fraction * 2.0 - 1.0).abs();
                 tint.0 = Srgba::new(r, g, factor, 1.0);
             });
+        println!(
+            "average FPS: {}",
+            time.frame_number() as f64 / time.absolute_time_seconds()
+        );
     }
 }

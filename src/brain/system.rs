@@ -32,10 +32,10 @@ impl<'s> System<'s> for BrainSystem {
         (entities, mut corgis, transforms, mut tints, tile_entities): Self::SystemData,
     ) {
         // collect perception
-        let mut corgi_tile_colors: DashMap<Entity, Hsv> = DashMap::new();
-        (&entities, &mut corgis, &transforms)
+        let corgi_tile_colors: DashMap<Entity, Hsv> = DashMap::new();
+        (&entities, &corgis, &transforms)
             .par_join()
-            .for_each(|(entity, corgi, transform)| {
+            .for_each(|(entity, _corgi, transform)| {
                 let (x, y) = (
                     (transform.translation().x / Tile::SIZE) as u32,
                     (transform.translation().y / Tile::SIZE) as u32,

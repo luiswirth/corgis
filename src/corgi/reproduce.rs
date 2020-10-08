@@ -1,10 +1,10 @@
-use std::sync::{Arc, RwLock};
+use std::sync::RwLock;
 
 use crate::{brain::Brain, corgi::Corgi, na::Vector2, universe::Values};
 use amethyst::{
     assets::Handle,
     core::transform::Transform,
-    ecs::prelude::{Entities, Join, ReadExpect, System, WriteExpect, WriteStorage},
+    ecs::prelude::*,
     renderer::{palette::Hsv, resources::Tint, SpriteRender, SpriteSheet},
 };
 use rand::{thread_rng, Rng};
@@ -38,21 +38,24 @@ impl<'s> System<'s> for ReproduceSystem {
             mut values,
         ): Self::SystemData,
     ) {
-        let mut rng = thread_rng();
         let sprite_render = SpriteRender::new(sprite_sheet.clone(), 1);
 
-        let mut new_corgis: Vec<(Corgi, Transform)> = Vec::new();
+        let new_corgis: RwLock<Vec<(Corgi, Transform)>> = RwLock::new(Vec::new());
 
-        for (mut corgi, transform) in (&mut corgis, &transforms).join() {
-            if corgi.age >= MATURITY_AGE
-                && corgi.reproduction_will
-                && corgi.energy >= Corgi::REPRODUCTION_WORK
-            {
-                let mut genes = corgi.genes.clone();
-                genes.mutate(&mut rng);
+        (&mut corgis, &transforms)
+            .par_join()
+            .for_each(|(mut corgi, transform)| {
+                if corgi.age >= MATURITY_AGE
+                    && corgi.reproduction_will
+                    && corgi.energy >= Corgi::REPRODUCTION_WORK
+                {
+                    corgi.energy -= Corgi::REPRODUCTION_WORK;
 
-                new_corgis.push((
-                    Corgi {
+                    let mut rng = thread_rng();
+                    let mut genes = corgi.genes.clone();
+                    genes.mutate(&mut rng);
+
+                    let corgi = Corgi {
                         uuid: rng.gen(),
                         name: String::from("SomeCorgi"),
                         generation: corgi.generation + 1,
@@ -69,25 +72,24 @@ impl<'s> System<'s> for ReproduceSystem {
 
                         color: Hsv::new(0.0, 0.0, 0.0),
                         reproduction_will: false,
-                    },
-                    transform.clone(),
-                ));
+                    };
 
-                corgi.energy -= Corgi::REPRODUCTION_WORK;
-            }
-        }
+                    let mut guard = new_corgis.write().unwrap();
+                    guard.push((corgi, transform.clone()));
+                }
+            });
 
-        for (c, t) in new_corgis {
-            let _generation = c.generation;
+        let new_corgis = new_corgis.into_inner().unwrap();
 
-            let ent = entities
+        for (corgi, transform) in new_corgis {
+            entities
                 .build_entity()
-                .with(c, &mut corgis)
+                .with(corgi, &mut corgis)
                 .with(sprite_render.clone(), &mut sprite_renderers)
-                .with(t, &mut transforms)
-                .with(Tint(Hsv::new(1.0, 1.0, 1.0).into()), &mut tints);
+                .with(transform, &mut transforms)
+                .with(Tint(Hsv::new(1.0, 1.0, 1.0).into()), &mut tints)
+                .build();
 
-            ent.build();
             values.corgi_count += 1;
         }
 
