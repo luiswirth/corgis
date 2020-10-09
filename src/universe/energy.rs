@@ -1,6 +1,10 @@
-use amethyst::{core::Transform, ecs::prelude::{
+use amethyst::{
+    core::Transform,
+    ecs::prelude::{
         Entities, ParJoin, ParallelIterator, ReadExpect, ReadStorage, System, WriteStorage,
-    }, renderer::palette::Hsl, renderer::resources::Tint};
+    },
+    renderer::{palette::Hsl, resources::Tint},
+};
 
 use crate::corgi::Corgi;
 
@@ -35,7 +39,9 @@ impl<'s> System<'s> for EnergySystem {
                 if let Some(tile_entity) = tile_entities.0.get(tile_index as usize) {
                     let tile_color: Hsl = tints.get(*tile_entity).unwrap().0.into();
                     let corgi_color: Hsl = corgi_tint.0.into();
-                    let diff = (tile_color.hue - corgi_color.hue).to_radians().abs() / std::f32::consts::PI / 2.0;
+                    let diff = (tile_color.hue - corgi_color.hue).to_radians().abs()
+                        / std::f32::consts::PI
+                        / 2.0;
                     if diff < 0.02 {
                         corgi.energy += 2.0;
                     }

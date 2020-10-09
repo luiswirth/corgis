@@ -20,7 +20,6 @@ syn = "1.0.42"
 quote = "1.0.7"
 
 log = "0.4.11"
-dashmap = "3.11.10"
 rayon = "1.4.1"
 
 #nphysics2d

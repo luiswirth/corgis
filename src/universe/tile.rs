@@ -1,4 +1,14 @@
-use amethyst::{assets::Handle, core::{math::Vector3, Time, Transform}, ecs::{prelude::*, Component, DenseVecStorage, Entity, World}, prelude::{Builder, WorldExt}, renderer::{SpriteRender, SpriteSheet, palette::Hsl, palette::Hue, palette::RgbHue, palette::Srgba, resources::Tint}};
+use amethyst::{
+    assets::Handle,
+    core::{math::Vector3, Time, Transform},
+    ecs::{prelude::*, Component, DenseVecStorage, Entity, World},
+    prelude::{Builder, WorldExt},
+    renderer::{
+        palette::{Hsl, RgbHue, Srgba},
+        resources::Tint,
+        SpriteRender, SpriteSheet,
+    },
+};
 
 use super::Universe;
 
@@ -101,7 +111,8 @@ impl<'s> System<'s> for TileSystem {
                 );
                 let index_frac = (x + y) as f32 / (Tile::MAP_WIDTH + Tile::MAP_HEIGHT) as f32;
                 let frame_interval = 2000;
-                let time_frac = (time.frame_number() % frame_interval) as f32 / frame_interval as f32;
+                let time_frac =
+                    (time.frame_number() % frame_interval) as f32 / frame_interval as f32;
                 let hue = (index_frac - time_frac) * std::f32::consts::PI * 2.0;
                 tint.0 = Hsl::new(RgbHue::from_radians(hue), 1.0, 0.5).into();
             });

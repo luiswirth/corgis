@@ -6,7 +6,7 @@ use crate::{
 use amethyst::{
     core::transform::Transform, derive::SystemDesc, ecs::prelude::*, renderer::resources::Tint,
 };
-use dashmap::DashMap;
+use std::{collections::HashMap, sync::Mutex};
 
 // remove color stuff again
 #[derive(SystemDesc)]
@@ -32,7 +32,7 @@ impl<'s> System<'s> for BrainSystem {
         (entities, mut corgis, transforms, mut tints, tile_entities): Self::SystemData,
     ) {
         // collect perception
-        let corgi_tile_colors: DashMap<Entity, Hsl> = DashMap::new();
+        let corgi_tile_colors: Mutex<HashMap<Entity, Hsl>> = Mutex::default();
         (&entities, &corgis, &transforms)
             .par_join()
             .for_each(|(entity, _corgi, transform)| {
@@ -43,6 +43,7 @@ impl<'s> System<'s> for BrainSystem {
                 let tile_index = y * Tile::MAP_WIDTH + x;
                 if let Some(tile_entity) = tile_entities.0.get(tile_index as usize) {
                     if let Some(tile_tint) = tints.get(*tile_entity) {
+                        let mut corgi_tile_colors = corgi_tile_colors.lock().unwrap();
                         corgi_tile_colors.insert(entity, Hsl::from(tile_tint.0.color));
                     }
                 }
@@ -60,10 +61,11 @@ impl<'s> System<'s> for BrainSystem {
                     environment: EnvironmentPerception {
                         velocity: IoVector2(corgi.velocity),
                         tile_color: IoHsl(
-                            corgi_tile_colors
+                            *corgi_tile_colors
+                                .lock()
+                                .unwrap()
                                 .get(&entity)
-                                .map(|r| *r)
-                                .unwrap_or(Hsl::new(0.0, 0.0, 0.0)),
+                                .unwrap_or(&Hsl::new(0.0, 0.0, 0.0)),
                         ),
                     },
                     memory: corgi
