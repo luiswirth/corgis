@@ -1,4 +1,4 @@
-use std::sync::RwLock;
+use std::sync::Mutex;
 
 use crate::{brain::Brain, corgi::Corgi, na::Vector2, universe::Values};
 use amethyst::{
@@ -40,7 +40,7 @@ impl<'s> System<'s> for ReproduceSystem {
     ) {
         let sprite_render = SpriteRender::new(sprite_sheet.clone(), 1);
 
-        let new_corgis: RwLock<Vec<(Corgi, Transform)>> = RwLock::new(Vec::new());
+        let new_corgis: Mutex<Vec<(Corgi, Transform)>> = Mutex::default();
 
         (&mut corgis, &transforms)
             .par_join()
@@ -74,8 +74,8 @@ impl<'s> System<'s> for ReproduceSystem {
                         reproduction_will: false,
                     };
 
-                    let mut guard = new_corgis.write().unwrap();
-                    guard.push((corgi, transform.clone()));
+                    let mut new_corgis = new_corgis.lock().unwrap();
+                    new_corgis.push((corgi, transform.clone()));
                 }
             });
 

@@ -1,4 +1,4 @@
-use std::sync::RwLock;
+use std::sync::Mutex;
 
 use crate::{
     brain::Brain,
@@ -54,9 +54,9 @@ impl<'s> System<'s> for SpawnerSystem {
         let x_pos_distr = Uniform::new(0.0, Universe::WIDTH_PIXEL);
         let y_pos_distr = Uniform::new(0.0, Universe::HEIGHT_PIXEL);
 
-        let corgis = RwLock::new(corgis);
-        let transforms = RwLock::new(transforms);
-        let tints = RwLock::new(tints);
+        let corgis = Mutex::new(corgis);
+        let transforms = Mutex::new(transforms);
+        let tints = Mutex::new(tints);
 
         (values.corgi_count..MIN_CORGI_COUNT)
             .into_par_iter()
@@ -93,12 +93,12 @@ impl<'s> System<'s> for SpawnerSystem {
 
                 entities
                     .build_entity()
-                    .with(local_transform.clone(), &mut transforms.write().unwrap())
-                    .with(corgi, &mut corgis.write().unwrap())
+                    .with(local_transform.clone(), &mut transforms.lock().unwrap())
+                    .with(corgi, &mut corgis.lock().unwrap())
                     //.with(sprite_render.clone(), &mut sprite_renderers)
                     .with(
                         Tint(Hsl::new(0.0, 1.0, 0.5).into()),
-                        &mut tints.write().unwrap(),
+                        &mut tints.lock().unwrap(),
                     )
                     .build();
             });
