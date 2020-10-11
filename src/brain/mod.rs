@@ -8,21 +8,20 @@ use crate::{
 };
 use amethyst::renderer::palette::{Hsl, RgbHue};
 
-// we could use na::Matrix::index(some_range, some_range) for slicing
-
 pub struct Brain {
     neural_network: NeuralNetwork,
     pub(self) memory: Option<Memory>,
+    io_cache: Option<Vec<f32>>,
 }
 
 pub trait BrainInput {
     fn len() -> usize;
-    fn to_input(self) -> Vec<f32>;
+    fn to_input(self, input: &mut Vec<f32>);
 }
 
 pub trait BrainOutput {
     fn len() -> usize;
-    fn from_output(output: Vec<f32>) -> Self;
+    fn from_output(output: &mut Vec<f32>) -> Self;
 }
 
 //#[derive(BrainInput)]
@@ -64,17 +63,24 @@ impl Brain {
         Self {
             neural_network: NeuralNetwork::new(gene),
             memory: None,
+            io_cache: Some(Vec::with_capacity(usize::min(
+                Perception::len(),
+                Decisions::len(),
+            ))),
         }
     }
 
-    pub fn think(&self, perception: Perception) -> Decisions {
-        Decisions::from_output(
-            self.neural_network
-                .feed(DVector::from_vec(perception.to_input()))
-                .iter()
-                .cloned()
-                .collect(),
-        )
+    pub fn think(&mut self, perception: Perception) -> Decisions {
+        let mut input = self.io_cache.take().unwrap();
+        perception.to_input(&mut input);
+        let mut output = self
+            .neural_network
+            .feed(DVector::from_vec(input))
+            .data
+            .into();
+        let decisions = Decisions::from_output(&mut output);
+        self.io_cache = Some(output);
+        decisions
     }
 }
 
@@ -87,11 +93,10 @@ impl BrainInput for Perception {
         BodyPerception::len() + EnvironmentPerception::len() + <Memory as BrainInput>::len()
     }
 
-    fn to_input(self) -> Vec<f32> {
-        let mut input = self.body.to_input();
-        input.append(&mut self.environment.to_input());
-        input.append(&mut self.memory.to_input());
-        input
+    fn to_input(self, input: &mut Vec<f32>) {
+        self.body.to_input(input);
+        self.environment.to_input(input);
+        self.memory.to_input(input);
     }
 }
 
@@ -100,10 +105,9 @@ impl BrainInput for BodyPerception {
         <IoF32 as BrainInput>::len() + <IoF32 as BrainInput>::len()
     }
 
-    fn to_input(self) -> Vec<f32> {
-        let mut input = self.energy.to_input();
-        input.append(&mut self.mass.to_input());
-        input
+    fn to_input(self, input: &mut Vec<f32>) {
+        self.energy.to_input(input);
+        self.mass.to_input(input);
     }
 }
 
@@ -112,10 +116,9 @@ impl BrainInput for EnvironmentPerception {
         <IoVector2 as BrainInput>::len() + <IoHsl as BrainInput>::len()
     }
 
-    fn to_input(self) -> Vec<f32> {
-        let mut input = self.velocity.to_input();
-        input.append(&mut self.tile_color.to_input());
-        input
+    fn to_input(self, input: &mut Vec<f32>) {
+        self.velocity.to_input(input);
+        self.tile_color.to_input(input);
     }
 }
 
@@ -127,12 +130,12 @@ impl BrainOutput for Decisions {
             + <Memory as BrainOutput>::len()
     }
 
-    fn from_output(output: Vec<f32>) -> Self {
+    fn from_output(output: &mut Vec<f32>) -> Self {
         Self {
-            force: IoVector2::from_output(output[0..2].to_vec()),
-            reproduction_will: IoBool::from_output(output[2..3].to_vec()),
-            color: IoHsl::from_output(output[3..4].to_vec()),
-            memory: Memory::from_output(output[4..9].to_vec()),
+            force: IoVector2::from_output(output),
+            reproduction_will: IoBool::from_output(output),
+            color: IoHsl::from_output(output),
+            memory: Memory::from_output(output),
         }
     }
 }
@@ -145,8 +148,8 @@ impl BrainInput for IoF32 {
         1
     }
 
-    fn to_input(self) -> Vec<f32> {
-        vec![self.0]
+    fn to_input(self, input: &mut Vec<f32>) {
+        input.push(self.0)
     }
 }
 impl BrainOutput for IoF32 {
@@ -154,8 +157,8 @@ impl BrainOutput for IoF32 {
         1
     }
 
-    fn from_output(output: Vec<f32>) -> Self {
-        Self(output[0])
+    fn from_output(output: &mut Vec<f32>) -> Self {
+        Self(output.pop().unwrap())
     }
 }
 
@@ -164,16 +167,16 @@ impl BrainInput for IoBool {
     fn len() -> usize {
         1
     }
-    fn to_input(self) -> Vec<f32> {
-        vec![if self.0 { 1.0 } else { 0.0 }]
+    fn to_input(self, input: &mut Vec<f32>) {
+        input.push(if self.0 { 1.0 } else { 0.0 })
     }
 }
 impl BrainOutput for IoBool {
     fn len() -> usize {
         1
     }
-    fn from_output(output: Vec<f32>) -> Self {
-        Self(output[0] >= 0.5)
+    fn from_output(output: &mut Vec<f32>) -> Self {
+        Self(output.pop().unwrap() >= 0.5)
     }
 }
 
@@ -182,16 +185,20 @@ impl BrainInput for IoVector2 {
     fn len() -> usize {
         2
     }
-    fn to_input(self) -> Vec<f32> {
-        self.0.iter().cloned().collect()
+    fn to_input(self, input: &mut Vec<f32>) {
+        input.extend(self.0.into_iter())
     }
 }
 impl BrainOutput for IoVector2 {
     fn len() -> usize {
         2
     }
-    fn from_output(output: Vec<f32>) -> Self {
-        IoVector2(Vector2::from_iterator(output.iter().map(|v| v * 2.0 - 1.0)))
+    fn from_output(output: &mut Vec<f32>) -> Self {
+        Self(Vector2::from_iterator(
+            output
+                .drain((output.len() - <Self as BrainOutput>::len())..)
+                .map(|v| v * 2.0 - 1.0),
+        ))
     }
 }
 
@@ -200,17 +207,18 @@ impl BrainInput for IoHsl {
     fn len() -> usize {
         3
     }
-    fn to_input(self) -> Vec<f32> {
-        vec![self.0.hue.to_radians(), self.0.saturation, self.0.lightness]
+    fn to_input(self, input: &mut Vec<f32>) {
+        input.extend([self.0.hue.to_radians(), self.0.saturation, self.0.lightness].iter());
     }
 }
 impl BrainOutput for IoHsl {
     fn len() -> usize {
         1
     }
-    fn from_output(output: Vec<f32>) -> Self {
-        let hue =
-            RgbHue::from_radians(output[0] * 2.0 * std::f32::consts::PI - std::f32::consts::PI);
+    fn from_output(output: &mut Vec<f32>) -> Self {
+        let hue = RgbHue::from_radians(
+            output.pop().unwrap() * std::f32::consts::TAU - std::f32::consts::PI,
+        );
         IoHsl(Hsl::new(hue, 1.0, 0.5))
     }
 }
@@ -220,15 +228,22 @@ impl BrainInput for Memory {
         Self::SIZE
     }
 
-    fn to_input(self) -> Vec<f32> {
-        self.0.into()
+    fn to_input(self, input: &mut Vec<f32>) {
+        input.extend(self.0.iter())
     }
 }
 impl BrainOutput for Memory {
     fn len() -> usize {
         Self::SIZE
     }
-    fn from_output(output: Vec<f32>) -> Self {
-        Self([output[0], output[1], output[2], output[3], output[4]])
+    fn from_output(output: &mut Vec<f32>) -> Self {
+        //Self(output.drain((output.len() - Self::len())..).collect())
+        Self([
+            output.pop().unwrap(),
+            output.pop().unwrap(),
+            output.pop().unwrap(),
+            output.pop().unwrap(),
+            output.pop().unwrap(),
+        ])
     }
 }

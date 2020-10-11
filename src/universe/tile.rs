@@ -79,7 +79,7 @@ pub fn create_tiles(world: &mut World) {
                 .with(tile_component)
                 .with(transform)
                 .with(sprite_render.clone())
-                .with(tint.clone())
+                .with(tint)
                 .build();
 
             tiles.push(entity);
@@ -113,7 +113,7 @@ impl<'s> System<'s> for TileSystem {
                 let frame_interval = 2000;
                 let time_frac =
                     (time.frame_number() % frame_interval) as f32 / frame_interval as f32;
-                let hue = (index_frac - time_frac) * std::f32::consts::PI * 2.0;
+                let hue = (index_frac - time_frac) * std::f32::consts::TAU;
                 tint.0 = Hsl::new(RgbHue::from_radians(hue), 1.0, 0.5).into();
             });
         println!(

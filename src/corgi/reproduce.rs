@@ -68,7 +68,7 @@ impl<'s> System<'s> for ReproduceSystem {
 
                         genes: genes.clone(),
 
-                        brain: Brain::new(genes.brain.clone()),
+                        brain: Brain::new(genes.brain),
 
                         color: Hsl::new(0.0, 0.0, 0.0),
                         reproduction_will: false,

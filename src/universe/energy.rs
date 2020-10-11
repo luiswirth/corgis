@@ -40,8 +40,7 @@ impl<'s> System<'s> for EnergySystem {
                     let tile_color: Hsl = tints.get(*tile_entity).unwrap().0.into();
                     let corgi_color: Hsl = corgi_tint.0.into();
                     let diff = (tile_color.hue - corgi_color.hue).to_radians().abs()
-                        / std::f32::consts::PI
-                        / 2.0;
+                        / std::f32::consts::TAU;
                     if diff < 0.02 {
                         corgi.energy += 2.0;
                     }

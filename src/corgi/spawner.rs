@@ -17,7 +17,7 @@ use rand::{thread_rng, Rng};
 use rand_distr::{Distribution, Uniform};
 use rayon::prelude::*;
 
-const MIN_CORGI_COUNT: u32 = 25_000;
+const MIN_CORGI_COUNT: u32 = 10;
 
 pub struct SpawnerSystem;
 
@@ -37,10 +37,10 @@ impl<'s> System<'s> for SpawnerSystem {
         (
             transforms,
             corgis,
-            _sprite_renderers,
+            sprite_renderers,
             tints,
             entities,
-            _sprite_sheet,
+            sprite_sheet,
             mut values,
         ): Self::SystemData,
     ) {
@@ -57,6 +57,9 @@ impl<'s> System<'s> for SpawnerSystem {
         let corgis = Mutex::new(corgis);
         let transforms = Mutex::new(transforms);
         let tints = Mutex::new(tints);
+        let sprite_renderers = Mutex::new(sprite_renderers);
+
+        let sprite_render = SpriteRender::new(sprite_sheet.clone(), 1);
 
         (values.corgi_count..MIN_CORGI_COUNT)
             .into_par_iter()
@@ -85,7 +88,7 @@ impl<'s> System<'s> for SpawnerSystem {
 
                     genes: genes.clone(),
 
-                    brain: Brain::new(genes.brain.clone()),
+                    brain: Brain::new(genes.brain),
 
                     color: Hsl::new(0.0, 0.0, 0.0),
                     reproduction_will: false,
@@ -93,9 +96,9 @@ impl<'s> System<'s> for SpawnerSystem {
 
                 entities
                     .build_entity()
-                    .with(local_transform.clone(), &mut transforms.lock().unwrap())
+                    .with(local_transform, &mut transforms.lock().unwrap())
                     .with(corgi, &mut corgis.lock().unwrap())
-                    //.with(sprite_render.clone(), &mut sprite_renderers)
+                    .with(sprite_render.clone(), &mut sprite_renderers.lock().unwrap())
                     .with(
                         Tint(Hsl::new(0.0, 1.0, 0.5).into()),
                         &mut tints.lock().unwrap(),
