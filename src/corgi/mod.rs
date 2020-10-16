@@ -4,9 +4,18 @@ pub mod spawner;
 
 use std::fmt::Debug;
 
-use crate::{brain::Brain, genes::Genome, na::Vector2};
+use crate::{
+    brain::{Brain, Decisions, Perception},
+    genes::Genome,
+};
 use amethyst::{ecs::prelude::*, renderer::palette::Hsl};
 
+use amethyst::{
+    core::math::Vector2,
+    ecs::{Component, DenseVecStorage},
+};
+
+#[derive(Component)]
 pub struct Corgi {
     pub uuid: u128,
     pub name: String,
@@ -14,28 +23,25 @@ pub struct Corgi {
     pub age: u32,
 
     pub energy: f32,
-    pub mass: f32,
-    pub velocity: Vector2<f32>,
-    pub force: Vector2<f32>,
 
     pub genes: Genome,
-    pub brain: Brain,
+}
 
-    pub color: Hsl,
-    pub reproduction_will: bool,
+#[derive(Component)]
+pub struct Physique {
+    pub mass: f32,
+
+    pub velocity: Vector2<f32>,
+    pub force: Vector2<f32>,
 }
 
 impl Corgi {
-    pub const INITAL_ENERGY: f32 = 200.0;
+    pub const INITIAL_ENERGY: f32 = 200.0;
     pub const BORN_ENERGY: f32 = 50.0;
     pub const REPRODUCTION_WORK: f32 = 300.0;
 
     pub const LIFE_WORK: f32 = 100.0;
     pub const MOVEMENT_WORK: f32 = 0.8;
-}
-
-impl Component for Corgi {
-    type Storage = DenseVecStorage<Self>;
 }
 
 impl Debug for Corgi {

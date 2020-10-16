@@ -1,22 +1,28 @@
-pub mod neural_network;
-pub mod system;
+mod neural_network;
+mod perceive_body;
+mod perceive_environment;
+mod think;
 
-use crate::{
-    brain::neural_network::NeuralNetwork,
-    genes::BrainGene,
-    na::{DVector, Vector2},
+pub use perceive_body::PerceiveBodySystem;
+pub use perceive_environment::PerceiveEnvironmentSystem;
+pub use think::ThinkSystem;
+
+use crate::{brain::neural_network::NeuralNetwork, genes::BrainGene};
+use amethyst::{
+    core::math::{DVector, Vector2},
+    ecs::{Component, DenseVecStorage},
+    renderer::palette::{Hsl, RgbHue},
 };
-use amethyst::renderer::palette::{Hsl, RgbHue};
 
+#[derive(Component)]
 pub struct Brain {
     neural_network: NeuralNetwork,
-    pub(self) memory: Option<Memory>,
     io_cache: Option<Vec<f32>>,
 }
 
 pub trait BrainInput {
     fn len() -> usize;
-    fn to_input(self, input: &mut Vec<f32>);
+    fn into_input(self, input: &mut Vec<f32>);
 }
 
 pub trait BrainOutput {
@@ -24,14 +30,34 @@ pub trait BrainOutput {
     fn from_output(output: &mut Vec<f32>) -> Self;
 }
 
+/// Every perception type is a single component
+
 //#[derive(BrainInput)]
+#[derive(Default)]
 pub struct Perception {
     body: BodyPerception,
     environment: EnvironmentPerception,
     memory: Memory,
 }
 
+//#[derive(BrainInput)]
+#[derive(Component, Default)]
+pub struct BodyPerception {
+    energy: IoF32,
+    mass: IoF32,
+}
+
+//#[derive(BrainInput)]
+#[derive(Component, Default)]
+pub struct EnvironmentPerception {
+    velocity: IoVector2,
+    tile_color: IoHsl,
+}
+
+/// All decisions are one big component
+
 //#[derive(BrainOutput)]
+#[derive(Component, Default)]
 pub struct Decisions {
     pub force: IoVector2,
     pub reproduction_will: IoBool,
@@ -39,19 +65,7 @@ pub struct Decisions {
     pub memory: Memory,
 }
 
-//#[derive(BrainInput)]
-pub struct BodyPerception {
-    energy: IoF32,
-    mass: IoF32,
-}
-
-//#[derive(BrainInput)]
-pub struct EnvironmentPerception {
-    velocity: IoVector2,
-    tile_color: IoHsl,
-}
-
-#[derive(Debug, Clone)]
+#[derive(Default, Debug, Clone)]
 pub struct Memory(pub [f32; Memory::SIZE]);
 
 impl Memory {
@@ -62,7 +76,6 @@ impl Brain {
     pub fn new(gene: BrainGene) -> Self {
         Self {
             neural_network: NeuralNetwork::new(gene),
-            memory: None,
             io_cache: Some(Vec::with_capacity(usize::min(
                 Perception::len(),
                 Decisions::len(),
@@ -70,9 +83,9 @@ impl Brain {
         }
     }
 
-    pub fn think(&mut self, perception: Perception) -> Decisions {
+    pub(self) fn think(&mut self, perception: Perception) -> Decisions {
         let mut input = self.io_cache.take().unwrap();
-        perception.to_input(&mut input);
+        perception.into_input(&mut input);
         let mut output = self
             .neural_network
             .feed(DVector::from_vec(input))
@@ -93,10 +106,10 @@ impl BrainInput for Perception {
         BodyPerception::len() + EnvironmentPerception::len() + <Memory as BrainInput>::len()
     }
 
-    fn to_input(self, input: &mut Vec<f32>) {
-        self.body.to_input(input);
-        self.environment.to_input(input);
-        self.memory.to_input(input);
+    fn into_input(self, input: &mut Vec<f32>) {
+        self.body.into_input(input);
+        self.environment.into_input(input);
+        self.memory.into_input(input);
     }
 }
 
@@ -105,9 +118,9 @@ impl BrainInput for BodyPerception {
         <IoF32 as BrainInput>::len() + <IoF32 as BrainInput>::len()
     }
 
-    fn to_input(self, input: &mut Vec<f32>) {
-        self.energy.to_input(input);
-        self.mass.to_input(input);
+    fn into_input(self, input: &mut Vec<f32>) {
+        self.energy.into_input(input);
+        self.mass.into_input(input);
     }
 }
 
@@ -116,9 +129,9 @@ impl BrainInput for EnvironmentPerception {
         <IoVector2 as BrainInput>::len() + <IoHsl as BrainInput>::len()
     }
 
-    fn to_input(self, input: &mut Vec<f32>) {
-        self.velocity.to_input(input);
-        self.tile_color.to_input(input);
+    fn into_input(self, input: &mut Vec<f32>) {
+        self.velocity.into_input(input);
+        self.tile_color.into_input(input);
     }
 }
 
@@ -142,13 +155,14 @@ impl BrainOutput for Decisions {
 
 // ---------------------------------------------------
 
+#[derive(Default)]
 struct IoF32(f32);
 impl BrainInput for IoF32 {
     fn len() -> usize {
         1
     }
 
-    fn to_input(self, input: &mut Vec<f32>) {
+    fn into_input(self, input: &mut Vec<f32>) {
         input.push(self.0)
     }
 }
@@ -162,12 +176,13 @@ impl BrainOutput for IoF32 {
     }
 }
 
+#[derive(Default)]
 pub struct IoBool(bool);
 impl BrainInput for IoBool {
     fn len() -> usize {
         1
     }
-    fn to_input(self, input: &mut Vec<f32>) {
+    fn into_input(self, input: &mut Vec<f32>) {
         input.push(if self.0 { 1.0 } else { 0.0 })
     }
 }
@@ -185,7 +200,7 @@ impl BrainInput for IoVector2 {
     fn len() -> usize {
         2
     }
-    fn to_input(self, input: &mut Vec<f32>) {
+    fn into_input(self, input: &mut Vec<f32>) {
         input.extend(self.0.into_iter())
     }
 }
@@ -201,25 +216,31 @@ impl BrainOutput for IoVector2 {
         ))
     }
 }
+impl Default for IoVector2 {
+    fn default() -> Self {
+        Self(Vector2::new(0.0, 0.0))
+    }
+}
 
+#[derive(Default)]
 pub struct IoHsl(Hsl);
 impl BrainInput for IoHsl {
     fn len() -> usize {
         3
     }
-    fn to_input(self, input: &mut Vec<f32>) {
+    fn into_input(self, input: &mut Vec<f32>) {
         input.extend([self.0.hue.to_radians(), self.0.saturation, self.0.lightness].iter());
     }
 }
 impl BrainOutput for IoHsl {
     fn len() -> usize {
-        1
+        3
     }
     fn from_output(output: &mut Vec<f32>) -> Self {
         let hue = RgbHue::from_radians(
             output.pop().unwrap() * std::f32::consts::TAU - std::f32::consts::PI,
         );
-        IoHsl(Hsl::new(hue, 1.0, 0.5))
+        IoHsl(Hsl::new(hue, output.pop().unwrap(), output.pop().unwrap()))
     }
 }
 
@@ -228,7 +249,7 @@ impl BrainInput for Memory {
         Self::SIZE
     }
 
-    fn to_input(self, input: &mut Vec<f32>) {
+    fn into_input(self, input: &mut Vec<f32>) {
         input.extend(self.0.iter())
     }
 }

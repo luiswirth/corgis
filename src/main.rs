@@ -7,8 +7,6 @@ pub mod genes;
 pub mod universe;
 pub mod util;
 
-pub use amethyst::core::math as na;
-
 use crate::{core::bundle::CorgiBundle, universe::Universe};
 use amethyst::{
     controls::FlyMovementSystemDesc,
@@ -22,6 +20,8 @@ use amethyst::{
     },
     utils::application_root_dir,
 };
+
+pub use util::consts;
 
 fn main() -> amethyst::Result<()> {
     amethyst::start_logger(Default::default());

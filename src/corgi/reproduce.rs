@@ -1,24 +1,29 @@
 use std::sync::Mutex;
 
-use crate::{brain::Brain, corgi::Corgi, na::Vector2, universe::Values};
+use crate::{
+    brain::Brain,
+    corgi::{Corgi, Physique},
+    universe::Values,
+};
 use amethyst::{
     assets::Handle,
-    core::transform::Transform,
+    core::{math::Vector2, transform::Transform},
     ecs::prelude::*,
     renderer::{palette::Hsl, resources::Tint, SpriteRender, SpriteSheet},
 };
 use rand::{thread_rng, Rng};
 
+#[derive(Default)]
 pub struct ReproduceSystem;
-
-impl ReproduceSystem {}
 
 const MATURITY_AGE: u32 = 1_000;
 
 impl<'s> System<'s> for ReproduceSystem {
     type SystemData = (
-        WriteStorage<'s, Transform>,
         WriteStorage<'s, Corgi>,
+        WriteStorage<'s, Brain>,
+        WriteStorage<'s, Transform>,
+        WriteStorage<'s, Physique>,
         WriteStorage<'s, SpriteRender>,
         WriteStorage<'s, Tint>,
         Entities<'s>,
@@ -29,29 +34,32 @@ impl<'s> System<'s> for ReproduceSystem {
     fn run(
         &mut self,
         (
-            mut transforms,
             mut corgis,
+            mut brains,
+            mut transforms,
+            mut physiques,
             mut sprite_renderers,
             mut tints,
             entities,
             sprite_sheet,
-            mut values,
+            values,
         ): Self::SystemData,
     ) {
         let sprite_render = SpriteRender::new(sprite_sheet.clone(), 1);
 
-        let new_corgis: Mutex<Vec<(Corgi, Transform)>> = Mutex::default();
+        let new_corgis: Mutex<Vec<(Corgi, Brain, Transform)>> = Mutex::default();
 
-        (&mut corgis, &transforms)
+        (&mut corgis, &brains, &transforms)
             .par_join()
-            .for_each(|(mut corgi, transform)| {
+            .for_each(|(mut corgi, brain, transform)| {
                 if corgi.age >= MATURITY_AGE
-                    && corgi.reproduction_will
+                    && decisions.reproduction_will
                     && corgi.energy >= Corgi::REPRODUCTION_WORK
                 {
+                    let mut rng = thread_rng();
+
                     corgi.energy -= Corgi::REPRODUCTION_WORK;
 
-                    let mut rng = thread_rng();
                     let mut genes = corgi.genes.clone();
                     genes.mutate(&mut rng);
 
@@ -62,37 +70,39 @@ impl<'s> System<'s> for ReproduceSystem {
                         age: 0,
 
                         energy: Corgi::BORN_ENERGY,
-                        mass: 1.0,
-                        velocity: Vector2::from_element(0.0),
-                        force: Vector2::from_element(0.0),
-
                         genes: genes.clone(),
-
-                        brain: Brain::new(genes.brain),
-
-                        color: Hsl::new(0.0, 0.0, 0.0),
-                        reproduction_will: false,
                     };
 
+                    let brain = Brain::new(genes.brain);
+
                     let mut new_corgis = new_corgis.lock().unwrap();
-                    new_corgis.push((corgi, transform.clone()));
+                    new_corgis.push((corgi, brain, transform.clone()));
                 }
             });
 
         let new_corgis = new_corgis.into_inner().unwrap();
 
-        for (corgi, transform) in new_corgis {
+        let physique = Physique {
+            mass: 1.0,
+
+            velocity: Vector2::from_element(0.0),
+            force: Vector2::from_element(0.0),
+        };
+
+        for (corgi, brain, transform) in new_corgis {
             entities
                 .build_entity()
                 .with(corgi, &mut corgis)
-                .with(sprite_render.clone(), &mut sprite_renderers)
+                .with(brain, &mut brains)
                 .with(transform, &mut transforms)
+                .with(physique.clone(), &mut physiques)
+                .with(sprite_render.clone(), &mut sprite_renderers)
                 .with(Tint(Hsl::new(1.0, 1.0, 0.5).into()), &mut tints)
                 .build();
 
             values.corgi_count += 1;
         }
 
-        println!("{}", values.corgi_count);
+        println!("corgi count: {}", values.corgi_count);
     }
 }

@@ -10,6 +10,7 @@ use crate::corgi::Corgi;
 
 use super::tile::{Tile, TileEntities};
 
+#[derive(Default)]
 pub struct EnergySystem;
 
 impl<'s> System<'s> for EnergySystem {

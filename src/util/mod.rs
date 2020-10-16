@@ -1,6 +1,5 @@
 pub mod consts;
 pub mod macros;
-pub mod types;
 
 // inspiration by https://hole.tuziwo.info/dyn-iterator.html
 // this is needed because of RFC 1522: AnyFn() -> impl Trait not allowed

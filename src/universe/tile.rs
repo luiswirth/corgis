@@ -89,12 +89,13 @@ pub fn create_tiles(world: &mut World) {
     world.insert(tiles);
 }
 
+#[derive(Default)]
 pub struct TileSystem;
 
 impl<'s> System<'s> for TileSystem {
     type SystemData = (
-        WriteStorage<'s, Tile>,
-        WriteStorage<'s, Transform>,
+        ReadStorage<'s, Tile>,
+        ReadStorage<'s, Transform>,
         WriteStorage<'s, Tint>,
         ReadExpect<'s, Time>,
     );
