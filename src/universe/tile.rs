@@ -11,6 +11,7 @@ use amethyst::{
 };
 
 use super::Universe;
+use noise::{HybridMulti, MultiFractal};
 
 pub struct TileEntities(pub Vec<Entity>);
 
@@ -54,7 +55,7 @@ pub fn create_tiles(world: &mut World) {
     //world.register::<Tile>();
     let sprite_render = {
         let sprite_sheet = world.fetch::<Handle<SpriteSheet>>();
-        SpriteRender::new((*sprite_sheet).clone(), 0)
+        SpriteRender::new((*sprite_sheet).clone(), 1)
     };
     let tint = Tint(Srgba::new(1.0, 1.0, 1.0, 1.0));
 
@@ -101,6 +102,9 @@ impl<'s> System<'s> for TileSystem {
     );
 
     fn run(&mut self, (tiles, transforms, mut tints, time): Self::SystemData) {
+        use noise::{NoiseFn, Perlin, HybridMulti, MultiFractal};
+        let noise = Perlin::new();
+
         (&tiles, &transforms, &mut tints)
             .par_join()
             .for_each(|(_tile, transform, tint)| {
@@ -110,11 +114,13 @@ impl<'s> System<'s> for TileSystem {
                     ((transform.translation().y - Tile::SIZE as f32 / 2.0) / Tile::SIZE as f32)
                         as u32,
                 );
-                let index_frac = (x + y) as f32 / (Tile::MAP_WIDTH + Tile::MAP_HEIGHT) as f32;
-                let frame_interval = 2000;
-                let time_frac =
-                    (time.frame_number() % frame_interval) as f32 / frame_interval as f32;
-                let hue = (index_frac - time_frac) * std::f32::consts::TAU;
+                let tf = time.frame_number() as f64 / 1000.0;
+                let xf = x as f64 / Tile::MAP_WIDTH as f64 * 1.5;
+                let yf = y as f64 / Tile::MAP_HEIGHT as f64 * 1.5;
+
+                let noise_val = noise.get([xf, yf, tf]) as f32;
+
+                let hue = noise_val * std::f32::consts::TAU;
                 tint.0 = Hsl::new(RgbHue::from_radians(hue), 1.0, 0.5).into();
             });
         println!(

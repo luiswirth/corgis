@@ -64,7 +64,7 @@ impl<'s> System<'s> for SpawnerSystem {
         let x_pos_distr = Uniform::new(0.0, Universe::WIDTH_PIXEL);
         let y_pos_distr = Uniform::new(0.0, Universe::HEIGHT_PIXEL);
 
-        let sprite_render = SpriteRender::new(sprite_sheet.clone(), 1);
+        let sprite_render = SpriteRender::new(sprite_sheet.clone(), 0);
 
         let mut rng = thread_rng();
         for _ in values.corgi_count..MIN_CORGI_COUNT {
@@ -92,6 +92,7 @@ impl<'s> System<'s> for SpawnerSystem {
                 y_pos_distr.sample(&mut rng),
                 0.0,
             );
+            local_transform.set_scale(Vector3::new(3.0, 3.0, 3.0));
 
             let physique = Physique {
                 mass: 1.0,

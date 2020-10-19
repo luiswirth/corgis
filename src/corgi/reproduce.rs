@@ -49,7 +49,7 @@ impl<'s> System<'s> for ReproduceSystem {
             mut values,
         ): Self::SystemData,
     ) {
-        let sprite_render = SpriteRender::new(sprite_sheet.clone(), 1);
+        let sprite_render = SpriteRender::new(sprite_sheet.clone(), 0);
 
         let mut new_corgis: Vec<(Corgi, Brain, Transform)> = Vec::new();
 
