@@ -1,12 +1,6 @@
-use crate::{
-    brain::*,
-    corgi::Corgi,
-    universe::tile::{Tile, TileEntities},
-};
-use amethyst::{
-    core::transform::Transform, derive::SystemDesc, ecs::prelude::*, renderer::resources::Tint,
-};
-use std::{collections::HashMap, sync::Mutex, mem};
+use crate::brain::*;
+use amethyst::{derive::SystemDesc, ecs::prelude::*};
+use std::mem;
 
 #[derive(Default, SystemDesc)]
 pub struct ThinkSystem;
@@ -16,7 +10,7 @@ impl<'s> System<'s> for ThinkSystem {
         WriteStorage<'s, Brain>,
         WriteStorage<'s, BodyPerception>,
         WriteStorage<'s, EnvironmentPerception>,
-        WriteStorage<'s, Decisions>,
+        WriteStorage<'s, Decision>,
     );
 
     fn run(

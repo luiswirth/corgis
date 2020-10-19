@@ -10,17 +10,17 @@ edition = "2018"
 proc-macro = true
 
 [dependencies]
-amethyst = { version = "0.15.3", features = ["tiles"] }
+amethyst = { version = "0.15.3", default-features = false, features = ["locale", "renderer", "tiles"] }
 
+#rayon = "1.4.1"
 rand = "0.7.3"
 rand_distr = "0.3.0"
 
-proc-macro2 = "1.0.24"
-syn = "1.0.44"
-quote = "1.0.7"
+#proc-macro2 = "1.0.24"
+#syn = "1.0.44"
+#quote = "1.0.7"
 
 log = "0.4.11"
-rayon = "1.4.1"
 
 #nphysics2d
 

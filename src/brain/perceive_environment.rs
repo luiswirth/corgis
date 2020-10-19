@@ -5,13 +5,9 @@ use crate::{
 };
 use amethyst::{
     core::Transform,
-    ecs::{prelude::*, System, SystemData},
+    ecs::{prelude::*, System},
     renderer::{palette::Hsl, resources::Tint},
 };
-use std::{collections::HashMap, sync::Mutex};
-
-// This is a temporary system which takes care of handling values
-// inside `Perception` which are not taken care of anywhere else.
 
 #[derive(Default)]
 pub struct PerceiveEnvironmentSystem;
@@ -30,7 +26,9 @@ impl<'s> System<'s> for PerceiveEnvironmentSystem {
         &mut self,
         (mut perceptions, corgis, transforms, physiques, tints, tile_entities): Self::SystemData,
     ) {
-        for (_corgi, transform, physique, mut perception) in (&corgis, &transforms, &physiques, &mut perceptions).join() {
+        for (_corgi, transform, physique, mut perception) in
+            (&corgis, &transforms, &physiques, &mut perceptions).join()
+        {
             let (x, y) = (
                 (transform.translation().x / Tile::SIZE) as u32,
                 (transform.translation().y / Tile::SIZE) as u32,

@@ -1,4 +1,4 @@
-use crate::brain::{BrainInput, BrainOutput, Decisions, Perception};
+use crate::brain::{BrainInput, BrainOutput, Decision, Perception};
 use amethyst::core::math::{DMatrix, DVector};
 use rand::{distributions::Uniform, Rng};
 use rand_distr::Normal;
@@ -88,7 +88,7 @@ impl Gene for BrainGene {
         }
 
         shape.insert(0, Perception::len());
-        shape.push(Decisions::len());
+        shape.push(Decision::len());
 
         // generate weights and biases
         let distr = Normal::new(Self::WEIGHT_MEAN, Self::WEIGHT_VARIANCE).unwrap();

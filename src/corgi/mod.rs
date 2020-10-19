@@ -4,11 +4,7 @@ pub mod spawner;
 
 use std::fmt::Debug;
 
-use crate::{
-    brain::{Brain, Decisions, Perception},
-    genes::Genome,
-};
-use amethyst::{ecs::prelude::*, renderer::palette::Hsl};
+use crate::genes::Genome;
 
 use amethyst::{
     core::math::Vector2,
@@ -27,7 +23,7 @@ pub struct Corgi {
     pub genes: Genome,
 }
 
-#[derive(Component)]
+#[derive(Component, Clone)]
 pub struct Physique {
     pub mass: f32,
 

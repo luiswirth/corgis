@@ -41,14 +41,14 @@ pub struct Perception {
 }
 
 //#[derive(BrainInput)]
-#[derive(Component, Default)]
+#[derive(Component, Default, Clone)]
 pub struct BodyPerception {
     energy: IoF32,
     mass: IoF32,
 }
 
 //#[derive(BrainInput)]
-#[derive(Component, Default)]
+#[derive(Component, Default, Clone)]
 pub struct EnvironmentPerception {
     velocity: IoVector2,
     tile_color: IoHsl,
@@ -57,8 +57,8 @@ pub struct EnvironmentPerception {
 /// All decisions are one big component
 
 //#[derive(BrainOutput)]
-#[derive(Component, Default)]
-pub struct Decisions {
+#[derive(Component, Default, Clone)]
+pub struct Decision {
     pub force: IoVector2,
     pub reproduction_will: IoBool,
     pub color: IoHsl,
@@ -78,12 +78,12 @@ impl Brain {
             neural_network: NeuralNetwork::new(gene),
             io_cache: Some(Vec::with_capacity(usize::min(
                 Perception::len(),
-                Decisions::len(),
+                Decision::len(),
             ))),
         }
     }
 
-    pub(self) fn think(&mut self, perception: Perception) -> Decisions {
+    pub(self) fn think(&mut self, perception: Perception) -> Decision {
         let mut input = self.io_cache.take().unwrap();
         perception.into_input(&mut input);
         let mut output = self
@@ -91,7 +91,7 @@ impl Brain {
             .feed(DVector::from_vec(input))
             .data
             .into();
-        let decisions = Decisions::from_output(&mut output);
+        let decisions = Decision::from_output(&mut output);
         self.io_cache = Some(output);
         decisions
     }
@@ -135,7 +135,7 @@ impl BrainInput for EnvironmentPerception {
     }
 }
 
-impl BrainOutput for Decisions {
+impl BrainOutput for Decision {
     fn len() -> usize {
         <IoVector2 as BrainOutput>::len()
             + <IoBool as BrainOutput>::len()
@@ -155,7 +155,7 @@ impl BrainOutput for Decisions {
 
 // ---------------------------------------------------
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 struct IoF32(f32);
 impl BrainInput for IoF32 {
     fn len() -> usize {
@@ -176,8 +176,8 @@ impl BrainOutput for IoF32 {
     }
 }
 
-#[derive(Default)]
-pub struct IoBool(bool);
+#[derive(Default, Clone)]
+pub struct IoBool(pub bool);
 impl BrainInput for IoBool {
     fn len() -> usize {
         1
@@ -195,7 +195,8 @@ impl BrainOutput for IoBool {
     }
 }
 
-pub struct IoVector2(Vector2<f32>);
+#[derive(Clone)]
+pub struct IoVector2(pub Vector2<f32>);
 impl BrainInput for IoVector2 {
     fn len() -> usize {
         2
@@ -222,8 +223,8 @@ impl Default for IoVector2 {
     }
 }
 
-#[derive(Default)]
-pub struct IoHsl(Hsl);
+#[derive(Default, Clone)]
+pub struct IoHsl(pub Hsl);
 impl BrainInput for IoHsl {
     fn len() -> usize {
         3

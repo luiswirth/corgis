@@ -32,7 +32,7 @@ impl<'a, 'b> SystemBundle<'a, 'b> for CorgiBundle {
             &[],
         );
 
-        builder.add(ThinkSystem::default(), "brain_system", &["perceive_system"]);
+        builder.add(ThinkSystem::default(), "brain_system", &["perceive_body_system", "perceive_environment_system"]);
 
         builder.add(MovementSystem::default(), "move_system", &["brain_system"]);
         builder.add(

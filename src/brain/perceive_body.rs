@@ -1,14 +1,8 @@
 use crate::{
     brain::*,
     corgi::{Corgi, Physique},
-    universe::tile::{Tile, TileEntities},
 };
-use amethyst::{
-    core::Transform,
-    ecs::{prelude::*, System, SystemData},
-    renderer::{palette::Hsl, resources::Tint},
-};
-use std::{collections::HashMap, sync::Mutex};
+use amethyst::ecs::{prelude::*, System};
 
 // This is a temporary system which takes care of handling values
 // inside `Perception` which are not taken care of anywhere else.
