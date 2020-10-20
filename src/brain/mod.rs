@@ -59,7 +59,8 @@ pub struct EnvironmentPerception {
 //#[derive(BrainOutput)]
 #[derive(Component, Default, Clone)]
 pub struct Decision {
-    pub force: IoVector2,
+    pub orientation_change: IoF32,
+    pub force: IoF32,
     pub reproduction_will: IoBool,
     pub color: IoHsl,
     pub memory: Memory,
@@ -145,7 +146,8 @@ impl BrainOutput for Decision {
 
     fn from_output(output: &mut Vec<f32>) -> Self {
         Self {
-            force: IoVector2::from_output(output),
+            orientation_change: IoF32::from_output(output),
+            force: IoF32::from_output(output),
             reproduction_will: IoBool::from_output(output),
             color: IoHsl::from_output(output),
             memory: Memory::from_output(output),
@@ -156,7 +158,7 @@ impl BrainOutput for Decision {
 // ---------------------------------------------------
 
 #[derive(Default, Clone)]
-struct IoF32(f32);
+pub struct IoF32(pub f32);
 impl BrainInput for IoF32 {
     fn len() -> usize {
         1
@@ -235,13 +237,13 @@ impl BrainInput for IoHsl {
 }
 impl BrainOutput for IoHsl {
     fn len() -> usize {
-        3
+        1
     }
     fn from_output(output: &mut Vec<f32>) -> Self {
         let hue = RgbHue::from_radians(
             output.pop().unwrap() * std::f32::consts::TAU - std::f32::consts::PI,
         );
-        IoHsl(Hsl::new(hue, output.pop().unwrap(), output.pop().unwrap()))
+        IoHsl(Hsl::new(hue, 1.0, 0.5))
     }
 }
 
