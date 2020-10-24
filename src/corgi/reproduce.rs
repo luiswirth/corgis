@@ -53,9 +53,7 @@ impl<'s> System<'s> for ReproduceSystem {
 
         let mut new_corgis: Vec<(Corgi, Brain, Transform)> = Vec::new();
 
-        for (mut corgi, brain, decision, transform) in
-            (&mut corgis, &brains, &decisions, &transforms).join()
-        {
+        for (mut corgi, decision, transform) in (&mut corgis, &decisions, &transforms).join() {
             if corgi.age >= MATURITY_AGE
                 && decision.reproduction_will.0
                 && corgi.energy >= Corgi::REPRODUCTION_WORK

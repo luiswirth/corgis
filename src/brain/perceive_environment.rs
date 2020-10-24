@@ -1,7 +1,7 @@
 use crate::{
     brain::*,
     corgi::{Corgi, Physique},
-    universe::tile::{Tile, TileEntities},
+    universe::tile::TileEntities,
 };
 use amethyst::{
     core::Transform,
@@ -26,15 +26,12 @@ impl<'s> System<'s> for PerceiveEnvironmentSystem {
         &mut self,
         (mut perceptions, corgis, transforms, physiques, tints, tile_entities): Self::SystemData,
     ) {
-        for (_corgi, transform, physique, mut perception) in
+        for (_corgi, transform, physique, perception) in
             (&corgis, &transforms, &physiques, &mut perceptions).join()
         {
-            let (x, y) = (
-                (transform.translation().x / Tile::SIZE) as u32,
-                (transform.translation().y / Tile::SIZE) as u32,
-            );
-            let tile_index = y * Tile::MAP_WIDTH + x;
-            if let Some(tile_entity) = tile_entities.0.get(tile_index as usize) {
+            if let Some(tile_entity) =
+                tile_entities.get_at_pos(transform.translation().x, transform.translation().y)
+            {
                 if let Some(tile_tint) = tints.get(*tile_entity) {
                     *perception = EnvironmentPerception {
                         tile_color: IoHsl(Hsl::from(tile_tint.0.color)),
