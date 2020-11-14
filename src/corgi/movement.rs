@@ -45,13 +45,13 @@ impl<'s> System<'s> for MovementSystem {
             .join()
         {
             //let angle = f32::atan2(physique.velocity.y, physique.velocity.x);
-            let orientation_change = (decision.orientation_change.0 * 2.0 - 0.5) / 80.0;
+            let orientation_change = (decision.0.decide() * 2.0 - 0.5) / 80.0;
             transform.rotate_2d(orientation_change);
 
             let scale = corgi.energy / Corgi::INITIAL_ENERGY + 1.0;
             transform.set_scale(Vector3::new(scale, scale, scale));
 
-            let force = decision.force.0 * 10.0;
+            let force = decision.0.decide() * 10.0;
 
             let orientation = transform.rotation().euler_angles().2;
             physique.force.x += force * f32::cos(orientation);
@@ -91,7 +91,11 @@ impl<'s> System<'s> for MovementSystem {
             }
 
             corgi.age += 1;
-            *tint = Tint(decision.color.0.into());
+            let hsl = decision.0.decide_on_hsl();
+            let hsl = decision.0.decide_on<Hsl>();
+
+            *tint = Tint(decision.0.decide());
         }
     }
 }
+overload function

@@ -1,5 +1,8 @@
 use crate::{
-    brain::{BodyPerception, Brain, Decision, EnvironmentPerception},
+    brain::{
+        perception::{body::BodyPerception, environment::EnvironmentPerception},
+        Brain, Decision,
+    },
     corgi::{Corgi, Physique},
     genes::Genome,
     universe::{Universe, Values},

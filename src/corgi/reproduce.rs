@@ -1,5 +1,9 @@
 use crate::{
-    brain::{BodyPerception, Brain, Decision, EnvironmentPerception},
+    brain::{
+        perception::{body::BodyPerception, environment::EnvironmentPerception},
+        Brain, Decision,
+        conversion,
+    },
     corgi::{Corgi, Physique},
     universe::Values,
 };
@@ -55,7 +59,7 @@ impl<'s> System<'s> for ReproduceSystem {
 
         for (mut corgi, decision, transform) in (&mut corgis, &decisions, &transforms).join() {
             if corgi.age >= MATURITY_AGE
-                && decision.reproduction_will.0
+                && conversion::into_bool(decision.0.decide())
                 && corgi.energy >= Corgi::REPRODUCTION_WORK
             {
                 let mut rng = thread_rng();

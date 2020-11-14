@@ -9,6 +9,9 @@ use amethyst::{
     renderer::{palette::Hsl, resources::Tint},
 };
 
+#[derive(Component, Default, Clone)]
+pub struct EnvironmentPerception(pub BrainInput);
+
 #[derive(Default)]
 pub struct PerceiveEnvironmentSystem;
 
@@ -33,10 +36,11 @@ impl<'s> System<'s> for PerceiveEnvironmentSystem {
                 tile_entities.get_at_pos(transform.translation().x, transform.translation().y)
             {
                 if let Some(tile_tint) = tints.get(*tile_entity) {
-                    *perception = EnvironmentPerception {
-                        tile_color: IoHsl(Hsl::from(tile_tint.0.color)),
-                        velocity: IoVector2(physique.velocity.clone_owned()),
-                    };
+                    perception.0.data.push(0.0);
+                    perception.0.perceive(tile_tint.0.color.r);
+                    perception.0.perceive(tile_tint.0.color.g);
+                    perception.0.perceive(tile_tint.0.color.b);
+                    perception.0.perceive(physique.velocity.clone_owned());
                 }
             }
         }

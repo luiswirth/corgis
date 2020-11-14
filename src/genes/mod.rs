@@ -1,11 +1,12 @@
-use crate::brain::{BrainInput, BrainOutput, Decision, Perception};
+use crate::brain::{BrainInput, BrainOutput, Decision};
 use amethyst::core::math::{DMatrix, DVector};
 use rand::{distributions::Uniform, Rng};
 use rand_distr::Normal;
 
+const MUTATION_STRENGTH: f32 = 1.0;
+
 #[derive(Debug, Clone)]
 pub struct Genome {
-    pub mutation: MutationGene,
     pub brain: BrainGene,
     pub color: ColorGene,
 }
@@ -13,16 +14,14 @@ pub struct Genome {
 impl Genome {
     pub fn random(rng: &mut impl Rng) -> Self {
         Self {
-            mutation: MutationGene::random(rng),
             brain: BrainGene::random(rng),
             color: ColorGene::random(rng),
         }
     }
 
     pub fn mutate(&mut self, rng: &mut impl Rng) {
-        self.mutation.mutate(1.0, rng);
-        self.brain.mutate(self.mutation.0, rng);
-        self.color.mutate(self.mutation.0, rng);
+        self.brain.mutate(MUTATION_STRENGTH, rng);
+        self.color.mutate(MUTATION_STRENGTH, rng);
     }
 }
 
@@ -34,23 +33,18 @@ trait Gene {
 
 /// A mutation factor which dictates how much all genes are mutated.
 /// It itself is a gene so that itself can be mutated.
-#[derive(Debug, Clone)]
-pub struct MutationGene(f32);
+//#[derive(Debug, Clone)]
+//pub struct MutationGene(f32);
 
-impl MutationGene {
-    const MEAN: f32 = 1.0;
-    const VARIANCE: f32 = 0.1;
-}
-
-impl Gene for MutationGene {
-    fn random(rng: &mut impl Rng) -> Self {
-        MutationGene(rng.sample(Normal::new(Self::MEAN, Self::VARIANCE).unwrap()))
-    }
-
-    fn mutate(&mut self, _: f32, rng: &mut impl Rng) {
-        self.0 += rng.sample(Normal::new(Self::MEAN, Self::VARIANCE).unwrap());
-    }
-}
+//impl Gene for MutationGene {
+//    fn random(rng: &mut impl Rng) -> Self {
+//        MutationGene(rng.sample(Normal::new(Self::MEAN, Self::VARIANCE).unwrap()))
+//    }
+//
+//    fn mutate(&mut self, _: f32, rng: &mut impl Rng) {
+//        self.0 += rng.sample(Normal::new(Self::MEAN, Self::VARIANCE).unwrap());
+//    }
+//}
 
 #[derive(Debug, Clone)]
 pub struct BrainGene {
@@ -87,8 +81,8 @@ impl Gene for BrainGene {
             );
         }
 
-        shape.insert(0, Perception::len());
-        shape.push(Decision::len());
+        shape.insert(0, 10); // TODO: find out acctual number
+        shape.push(10); // TODO: find out acctual number
 
         // generate weights and biases
         let distr = Normal::new(Self::WEIGHT_MEAN, Self::WEIGHT_VARIANCE).unwrap();

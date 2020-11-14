@@ -1,3 +1,4 @@
+use super::perception::{body::BodyPerception, environment::EnvironmentPerception};
 use crate::brain::*;
 use amethyst::{derive::SystemDesc, ecs::prelude::*};
 use std::mem;
@@ -27,9 +28,8 @@ impl<'s> System<'s> for ThinkSystem {
             .for_each(
                 |(brain, body_perception, environment_perception, decision)| {
                     let perception = Perception {
-                        body: mem::take(body_perception),
-                        environment: mem::take(environment_perception),
-                        memory: mem::take(&mut decision.memory),
+                        body: &body_perceptions,
+                        environment: &environment_perception,
                     };
                     *decision = brain.think(perception);
                 },
