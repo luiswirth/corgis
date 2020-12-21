@@ -1,70 +1,88 @@
-#![allow(clippy::type_complexity)]
-
-pub mod brain;
-pub mod core;
-pub mod corgi;
-pub mod genes;
-pub mod universe;
-pub mod util;
-
-use crate::{core::bundle::CorgiBundle, universe::Universe};
-use amethyst::{
-    controls::FlyMovementSystemDesc,
-    core::{frame_limiter::FrameRateLimitStrategy, transform::TransformBundle},
-    input::{InputBundle, StringBindings},
-    prelude::*,
-    renderer::{
-        plugins::{RenderFlat2D, RenderToWindow},
-        types::DefaultBackend,
-        RenderingBundle,
-    },
-    utils::application_root_dir,
+use bevy::{prelude::*, render::pass::ClearColor};
+use bevy_rapier2d::{
+    physics::{RapierConfiguration, RapierPhysicsPlugin},
+    rapier::{dynamics::RigidBodyBuilder, geometry::ColliderBuilder, pipeline::PhysicsPipeline},
+    render::RapierRenderPlugin,
 };
 
-pub use util::consts;
+fn main() {
+    App::build()
+        .add_resource(ClearColor(Color::rgb(
+            0xF9 as f32 / 255.0,
+            0xF9 as f32 / 255.0,
+            0xFF as f32 / 255.0,
+        )))
+        .add_resource(Msaa::default())
+        .add_plugins(DefaultPlugins)
+        //.add_plugin(bevy_winit::WinitPlugin::default())
+        //.add_plugin(bevy_wgpu::WgpuPlugin::default())
+        .add_plugin(RapierPhysicsPlugin)
+        .add_plugin(RapierRenderPlugin)
+        .add_startup_system(setup_graphics.system())
+        .add_startup_system(setup_physics.system())
+        .add_startup_system(enable_physics_profiling.system())
+        .run();
+}
 
-fn main() -> amethyst::Result<()> {
-    amethyst::start_logger(Default::default());
+fn enable_physics_profiling(mut pipeline: ResMut<PhysicsPipeline>) {
+    pipeline.counters.enable()
+}
 
-    let app_root = application_root_dir()?;
-    let display_config_path = app_root.join("config/display.ron");
-    let key_bindings_path = app_root.join("config/input.ron");
-    let assets_dir = app_root.join("assets/");
+fn setup_graphics(commands: &mut Commands, mut configuration: ResMut<RapierConfiguration>) {
+    configuration.scale = 10.0;
 
-    let game_data = GameDataBuilder::default()
-        .with_system_desc(
-            FlyMovementSystemDesc::<StringBindings>::new(
-                100.0,
-                Some("camera_right".into()),
-                Some("camera_up".into()),
-                None,
-            ),
-            "fly_movement",
-            &[],
-        )
-        .with_bundle(TransformBundle::new().with_dep(&["fly_movement"]))?
-        .with_bundle(
-            InputBundle::<StringBindings>::new().with_bindings_from_file(key_bindings_path)?,
-        )?
-        .with_bundle(
-            RenderingBundle::<DefaultBackend>::new()
-                .with_plugin(
-                    RenderToWindow::from_config_path(display_config_path)?
-                        .with_clear([0.0, 0.0, 0.0, 1.0]),
-                )
-                .with_plugin(RenderFlat2D::default()), //.with_plugin(RenderTiles2D::<Tile>::default()),
-        )?
-        .with_bundle(CorgiBundle)?;
+    commands
+        .spawn(LightBundle {
+            transform: Transform::from_translation(Vec3::new(1000.0, 100.0, 2000.0)),
+            ..Default::default()
+        })
+        .spawn(Camera2dBundle {
+            transform: Transform::from_translation(Vec3::new(0.0, 200.0, 0.0)),
+            ..Camera2dBundle::default()
+        });
+}
 
-    let mut game = Application::build(assets_dir, Universe::default())?
-        .with_frame_limit(
-            FrameRateLimitStrategy::Unlimited,
-            std::u32::MAX,
-            //FrameRateLimitStrategy::SleepAndYield(Duration::from_millis(2)),
-            //144
-        )
-        .build(game_data)?;
+pub fn setup_physics(commands: &mut Commands) {
+    /*
+     * Ground
+     */
+    let ground_size = 25.0;
 
-    game.run();
-    Ok(())
+    let rigid_body = RigidBodyBuilder::new_static();
+    let collider = ColliderBuilder::cuboid(ground_size, 1.2);
+    commands.spawn((rigid_body, collider));
+
+    let rigid_body = RigidBodyBuilder::new_static()
+        .rotation(std::f32::consts::FRAC_PI_2)
+        .translation(ground_size, ground_size * 2.0);
+    let collider = ColliderBuilder::cuboid(ground_size * 2.0, 1.2);
+    commands.spawn((rigid_body, collider));
+
+    let body = RigidBodyBuilder::new_static()
+        .rotation(std::f32::consts::FRAC_PI_2)
+        .translation(-ground_size, ground_size * 2.0);
+    let collider = ColliderBuilder::cuboid(ground_size * 2.0, 1.2);
+    commands.spawn((body, collider));
+
+    /*
+     * Create the cubes
+     */
+    let num = 20;
+    let rad = 0.5;
+
+    let shift = rad * 2.0;
+    let centerx = shift * (num as f32) / 2.0;
+    let centery = shift / 2.0;
+
+    for i in 0..num {
+        for j in 0usize..num * 5 {
+            let x = i as f32 * shift - centerx;
+            let y = j as f32 * shift + centery + 2.0;
+
+            // Build the rigid body.
+            let body = RigidBodyBuilder::new_dynamic().translation(x, y);
+            let collider = ColliderBuilder::cuboid(rad, rad).density(1.0);
+            commands.spawn((body, collider));
+        }
+    }
 }
